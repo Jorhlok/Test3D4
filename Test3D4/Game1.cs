@@ -59,7 +59,7 @@ namespace Test3D4
             SaturnEffect.Parameters["Tex"].SetValue(Tex);
             SaturnEffect.Parameters["ScreenDoorScale"].SetValue(1);
 
-            qdraw = new QuadDraw(GraphicsDevice, SaturnEffect);
+            qdraw = new QuadDraw(GraphicsDevice, SaturnEffect,640,480);
         }
 
         /// <summary>
@@ -96,12 +96,18 @@ namespace Test3D4
 
             qdraw.gdev.SetRenderTarget(qdraw.buf);
             qdraw.gdev.Clear(Color.Transparent);
+            SaturnEffect.Parameters["ScreenDoor"].SetValue(false);
 
-            qdraw.DrawSpriteQuick(Tex, new Rectangle(0, 0, Tex.Width, Tex.Height), new Vector3(0f, 0f, -1f), new Vector3(12f, 0f, -1f), new Vector3(12f, 12f, -1f), new Vector3(0f, 12f, -1f), new Color(0.75f, 0.25f, 0.25f, 1f), new Color(0.25f, 0.75f, 0.25f, 1f), new Color(0.25f, 0.25f, 0.75f, 1f), new Color(0.75f, 0.75f, 0.75f, 1f), 3);
+            //qdraw.DrawSpriteQuick(Tex, new Rectangle(0, 0, Tex.Width, Tex.Height), new Vector3(0f, 0f, -1f), new Vector3(12f, 0f, -1f), new Vector3(12f, 12f, -1f), new Vector3(0f, 12f, -1f), new Color(0.75f, 0.25f, 0.25f, 1f), new Color(0.25f, 0.75f, 0.25f, 1f), new Color(0.25f, 0.25f, 0.75f, 1f), new Color(0.75f, 0.75f, 0.75f, 1f), 3);
 
             qdraw.DrawQuadQuick(new Vector3(0, 0, -1.5f), new Vector3(5, 0, -1.5f), new Vector3(5, 5, -1), new Vector3(0, 5, -1), Color.Red, Color.Yellow, Color.Blue, Color.Magenta);
 
-            basicEffect.CurrentTechnique.Passes[0].Apply();
+            //qdraw.gdev.Clear(Color.Transparent);
+            qdraw.DrawSprite(TexRing, new Rectangle(0, 0, TexRing.Width / 8, TexRing.Height), new Vector3(2, 0, -1), new Vector3(3, 0, -1), new Vector3(5, 5, -1), new Vector3(0, 5, -1));
+            qdraw.DrawSpriteQuick(TexRing, new Rectangle(0, 0, TexRing.Width / 8, TexRing.Height), new Vector3(2 + 5, 0, -1), new Vector3(3 + 5, 0, -1), new Vector3(5 + 5, 5, -1), new Vector3(0 + 5, 5, -1));
+            qdraw.DrawSprite(Tex, new Rectangle(0, 0, Tex.Width, Tex.Height), new Vector3(2, 0+5, -1), new Vector3(3, 0+5, -1), new Vector3(5, 5+5, -1), new Vector3(0, 5+5, -1));
+            qdraw.DrawSpriteQuick(Tex, new Rectangle(0, 0, Tex.Width, Tex.Height), new Vector3(2 + 5, 0+5, -1), new Vector3(3 + 5, 0+5, -1), new Vector3(5 + 5, 5+5, -1), new Vector3(0 + 5, 5+5, -1));
+
             qdraw.gdev.SetRenderTarget(null);
 
             SaturnEffect.Parameters["ScreenDoor"].SetValue(true);
@@ -165,9 +171,10 @@ namespace Test3D4
             SaturnEffect.Parameters["ScreenDoor"].SetValue(true);
             SaturnEffect.CurrentTechnique.Passes[0].Apply();
             GraphicsDevice.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, verts, 0, 4, indecies, 0, 2);
-            
-            
-            spriteBatch.Begin(SpriteSortMode.Immediate,BlendState.NonPremultiplied,SamplerState.PointClamp);
+
+
+            basicEffect.CurrentTechnique.Passes[0].Apply();
+            spriteBatch.Begin(SpriteSortMode.Deferred,BlendState.NonPremultiplied,SamplerState.PointClamp);
             spriteBatch.Draw(qdraw.buf, new Rectangle((800-640)/2,0,640,480), Color.White);
             spriteBatch.End();
 
