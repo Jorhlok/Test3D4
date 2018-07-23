@@ -15,6 +15,7 @@ namespace Test3D4
         public Effect SaturnEffect;
         public Texture2D Tex;
         public Texture2D TexRing;
+        QuadDraw qdraw;
 
         public Game1()
         {
@@ -57,6 +58,8 @@ namespace Test3D4
             TexRing = Content.Load<Texture2D>("assets/img/ring");
             SaturnEffect.Parameters["Tex"].SetValue(Tex);
             SaturnEffect.Parameters["ScreenDoorScale"].SetValue(1);
+
+            qdraw = new QuadDraw(GraphicsDevice, SaturnEffect);
         }
 
         /// <summary>
@@ -153,10 +156,10 @@ namespace Test3D4
             GraphicsDevice.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, verts, 0, 4, indecies, 0, 2);
             
             verts[0] = new VertexPositionColorTexture(new Vector3(0f, 0f, -1f), new Color(0.75f, 0.25f, 0.25f, 1f), new Vector2(0, 0));
-            verts[1] = new VertexPositionColorTexture(new Vector3(9 / 3f, 0f, -1f), new Color(0.25f, 0.75f, 0.25f, 1f), new Vector2(1, 0));
-            verts[2] = new VertexPositionColorTexture(new Vector3(9 / 3f, 16 / 3f, -1f), new Color(0.25f, 0.25f, 0.75f, 1f), new Vector2(1, 1));
-            verts[3] = new VertexPositionColorTexture(new Vector3(0f, 16 / 3f, -1f), new Color(0.75f, 0.75f, 0.75f, 1f), new Vector2(0, 1));
-            verts[4] = new VertexPositionColorTexture(new Vector3(9f/3/2, 16 / 3f/2, -1f), new Color(0.5f, 0.5f, 0.5f, 1f), new Vector2(0.5f, 0.5f));
+            verts[1] = new VertexPositionColorTexture(new Vector3(12f, 0f, -1f), new Color(0.25f, 0.75f, 0.25f, 1f), new Vector2(1, 0));
+            verts[2] = new VertexPositionColorTexture(new Vector3(12f, 12f, -1f), new Color(0.25f, 0.25f, 0.75f, 1f), new Vector2(1, 1));
+            verts[3] = new VertexPositionColorTexture(new Vector3(0f, 12f, -1f), new Color(0.75f, 0.75f, 0.75f, 1f), new Vector2(0, 1));
+            verts[4] = new VertexPositionColorTexture(new Vector3(12/2f, 12/2f, -1f), new Color(0.5f, 0.5f, 0.5f, 1f), new Vector2(0.5f, 0.5f));
             
             indecies[0] = 0;
             indecies[1] = 1;
@@ -177,8 +180,15 @@ namespace Test3D4
             SaturnEffect.Parameters["Tex"].SetValue(Tex);
             SaturnEffect.Parameters["ScreenDoor"].SetValue(false);
             SaturnEffect.CurrentTechnique.Passes[0].Apply();
+
+            qdraw.gdev.SetRenderTarget(qdraw.buf);
             GraphicsDevice.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, verts, 0, 5, indecies, 0, 4);
 
+            basicEffect.CurrentTechnique.Passes[0].Apply();
+            qdraw.gdev.SetRenderTarget(null);
+            spriteBatch.Begin();
+            spriteBatch.Draw(qdraw.buf, new Rectangle(0,0,320,240), Color.White);
+            spriteBatch.End();
 
 
             base.Draw(gameTime);
