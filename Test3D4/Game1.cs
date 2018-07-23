@@ -60,6 +60,7 @@ namespace Test3D4
             SaturnEffect.Parameters["ScreenDoorScale"].SetValue(1);
 
             qdraw = new QuadDraw(GraphicsDevice, SaturnEffect,640,480);
+
         }
 
         /// <summary>
@@ -94,6 +95,7 @@ namespace Test3D4
         protected override void Draw(GameTime gameTime)
         {
 
+            qdraw.gdev.RasterizerState = RasterizerState.CullNone;
             qdraw.gdev.SetRenderTarget(qdraw.buf);
             qdraw.gdev.Clear(Color.Transparent);
             SaturnEffect.Parameters["ScreenDoor"].SetValue(false);
@@ -105,8 +107,8 @@ namespace Test3D4
             //qdraw.gdev.Clear(Color.Transparent);
             qdraw.DrawSprite(TexRing, new Rectangle(0, 0, TexRing.Width / 8, TexRing.Height), new Vector3(2, 0, -1), new Vector3(3, 0, -1), new Vector3(5, 5, -1), new Vector3(0, 5, -1));
             qdraw.DrawSpriteQuick(TexRing, new Rectangle(0, 0, TexRing.Width / 8, TexRing.Height), new Vector3(2 + 5, 0, -1), new Vector3(3 + 5, 0, -1), new Vector3(5 + 5, 5, -1), new Vector3(0 + 5, 5, -1));
-            qdraw.DrawSprite(Tex, new Rectangle(0, 0, Tex.Width, Tex.Height), new Vector3(2, 0+5, -1), new Vector3(3, 0+5, -1), new Vector3(5, 5+5, -1), new Vector3(0, 5+5, -1));
-            qdraw.DrawSpriteQuick(Tex, new Rectangle(0, 0, Tex.Width, Tex.Height), new Vector3(2 + 5, 0+5, -1), new Vector3(3 + 5, 0+5, -1), new Vector3(5 + 5, 5+5, -1), new Vector3(0 + 5, 5+5, -1));
+            qdraw.DrawSprite(Tex, new Rectangle(0, 0, Tex.Width, Tex.Height), new Vector3(5, 0+5, -1), new Vector3(0, 0+5, -1), new Vector3(5, 5+5, -1), new Vector3(0, 5+5, -1));
+            qdraw.DrawSpriteQuick(Tex, new Rectangle(0, 0, Tex.Width, Tex.Height), new Vector3(5 + 5, 0+5, -1), new Vector3(0 + 5, 0+5, -1), new Vector3(5 + 5, 5+5, -1), new Vector3(0 + 5, 5+5, -1));
 
             qdraw.gdev.SetRenderTarget(null);
 
