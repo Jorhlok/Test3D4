@@ -50,17 +50,12 @@ namespace Test3D4
 
             // TODO: use this.Content to load your game content here
             SaturnEffect = Content.Load<Effect>("assets/fx/Saturn");
-            SaturnEffect.Parameters["Projection"].SetValue(Matrix.CreateOrthographicOffCenter(0, 12, 12, 0, 1 / 256f, 12));
-            SaturnEffect.Parameters["MagicColEnable"].SetValue(true);
-            SaturnEffect.Parameters["MagicCol"].SetValue(Color.Lime.ToVector4());
 
             Tex = Content.Load<Texture2D>("assets/img/WALL");
             TexRing = Content.Load<Texture2D>("assets/img/ring");
-            SaturnEffect.Parameters["Tex"].SetValue(Tex);
-            SaturnEffect.Parameters["ScreenDoorScale"].SetValue(1);
 
             qdraw = new QuadDraw(GraphicsDevice, SaturnEffect,640,480);
-
+            qdraw.MagicCol(Color.Lime);
         }
 
         /// <summary>
@@ -94,90 +89,22 @@ namespace Test3D4
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-
-            qdraw.gdev.RasterizerState = RasterizerState.CullNone;
-            qdraw.gdev.SetRenderTarget(qdraw.buf);
-            qdraw.gdev.Clear(Color.Transparent);
-            SaturnEffect.Parameters["ScreenDoor"].SetValue(false);
-
-            //qdraw.DrawSpriteQuick(Tex, new Rectangle(0, 0, Tex.Width, Tex.Height), new Vector3(0f, 0f, -1f), new Vector3(12f, 0f, -1f), new Vector3(12f, 12f, -1f), new Vector3(0f, 12f, -1f), new Color(0.75f, 0.25f, 0.25f, 1f), new Color(0.25f, 0.75f, 0.25f, 1f), new Color(0.25f, 0.25f, 0.75f, 1f), new Color(0.75f, 0.75f, 0.75f, 1f), 3);
-
-            qdraw.DrawQuadQuick(new Vector3(0, 0, -1.5f), new Vector3(5, 0, -1.5f), new Vector3(5, 5, -1), new Vector3(0, 5, -1), Color.Red, Color.Yellow, Color.Blue, Color.Magenta);
-
-            //qdraw.gdev.Clear(Color.Transparent);
-            qdraw.DrawSprite(TexRing, new Rectangle(0, 0, TexRing.Width / 8, TexRing.Height), new Vector3(2, 0, -1), new Vector3(3, 0, -1), new Vector3(5, 5, -1), new Vector3(0, 5, -1));
-            qdraw.DrawSpriteQuick(TexRing, new Rectangle(0, 0, TexRing.Width / 8, TexRing.Height), new Vector3(2 + 5, 0, -1), new Vector3(3 + 5, 0, -1), new Vector3(5 + 5, 5, -1), new Vector3(0 + 5, 5, -1));
-            qdraw.DrawSprite(Tex, new Rectangle(0, 0, Tex.Width, Tex.Height), new Vector3(5, 0+5, -1), new Vector3(0, 0+5, -1), new Vector3(5, 5+5, -1), new Vector3(0, 5+5, -1));
-            qdraw.DrawSpriteQuick(Tex, new Rectangle(0, 0, Tex.Width, Tex.Height), new Vector3(5 + 5, 0+5, -1), new Vector3(0 + 5, 0+5, -1), new Vector3(5 + 5, 5+5, -1), new Vector3(0 + 5, 5+5, -1));
-
-            qdraw.gdev.SetRenderTarget(null);
-
-            SaturnEffect.Parameters["ScreenDoor"].SetValue(true);
-            SaturnEffect.CurrentTechnique.Passes[1].Apply();
-            GraphicsDevice.BlendState = BlendState.NonPremultiplied;
-            //GraphicsDevice.DepthStencilState = DepthStencilState.None;
-            GraphicsDevice.Clear(Color.CornflowerBlue);
-
-            var col = new Color(0.75f,0.75f,0f,1f);
-
             // TODO: Add your drawing code here
-            VertexPositionColor[] vertecies = new VertexPositionColor[8];
-            vertecies[0] = new VertexPositionColor(new Vector3(5, 4, -4), col);
-            vertecies[1] = new VertexPositionColor(new Vector3(7, 4, -4), col);
-            vertecies[2] = new VertexPositionColor(new Vector3(8, 8, -2), col);
-            vertecies[3] = new VertexPositionColor(new Vector3(4, 8, -2), col);
-
-            vertecies[4] = new VertexPositionColor(new Vector3(5, 2, -2.75f), Color.Black);
-            vertecies[5] = new VertexPositionColor(new Vector3(7, 3, -3.25f), Color.White);
-            vertecies[6] = new VertexPositionColor(new Vector3(7, 9, -3.25f), Color.White);
-            vertecies[7] = new VertexPositionColor(new Vector3(5, 10, -2.75f), Color.Black);
-
-            short[] indecies = new short[12];
-            indecies[0] = 0;
-            indecies[1] = 1;
-            indecies[2] = 2;
-
-            indecies[3] = 0;
-            indecies[4] = 2;
-            indecies[5] = 3;
-
-            indecies[6] = 4;
-            indecies[7] = 5;
-            indecies[8] = 6;
-
-            indecies[9] = 4;
-            indecies[10] = 6;
-            indecies[11] = 7;
             
-            GraphicsDevice.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, vertecies, 0, 8, indecies, 0, 2);
+            qdraw.DepthEnable();
+            qdraw.ScreenDoors(false);
+            qdraw.Begin();
 
-            SaturnEffect.Parameters["ScreenDoor"].SetValue(false);
-            SaturnEffect.CurrentTechnique.Passes[1].Apply();
+            qdraw.DrawSpriteQuick(Tex, new Rectangle(0, 0, Tex.Width, Tex.Height), new Vector3(0, 0, -2), new Vector3(95, 0, -2), new Vector3(95, 95, -2), new Vector3(0, 95, -2));
 
-            GraphicsDevice.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, vertecies, 0, 8, indecies, 6, 2);
+            qdraw.DrawSpriteQuick(TexRing, new Rectangle(0, 0, TexRing.Width / 8, TexRing.Height), new Vector3(0, 0, -1), new Vector3(95, 0, -1), new Vector3(95, 95, -3), new Vector3(0, 95, -3));
 
-            var noGourad = new Color(0.5f, 0.5f, 0.5f, 1f);
+            qdraw.End();
 
-
-            VertexPositionColorTexture[] verts = new VertexPositionColorTexture[5];
-            //verts[0] = new VertexPositionColorTexture(new Vector3(10f, 0f, -1f), noGourad, new Vector2(0, 0));
-            //verts[1] = new VertexPositionColorTexture(new Vector3(12f, 0f, -1f), noGourad, new Vector2(1 / 8f, 0));
-            //verts[2] = new VertexPositionColorTexture(new Vector3(12f, 16 / 9f * 2f, -1f), noGourad, new Vector2(1 / 8f, 1));
-            //verts[3] = new VertexPositionColorTexture(new Vector3(10f, 16 / 9f * 2f, -1f), noGourad, new Vector2(0, 1));
-            verts[0] = new VertexPositionColorTexture(new Vector3(0f, 0f, -1f), noGourad, new Vector2(0, 0));
-            verts[1] = new VertexPositionColorTexture(new Vector3(12f, 0f, -1f), noGourad, new Vector2(1 / 8f, 0));
-            verts[2] = new VertexPositionColorTexture(new Vector3(12f, 12f, -1f), noGourad, new Vector2(1 / 8f, 1));
-            verts[3] = new VertexPositionColorTexture(new Vector3(0f, 12f, -1f), noGourad, new Vector2(0, 1));
-
-            SaturnEffect.Parameters["Tex"].SetValue(TexRing);
-            SaturnEffect.Parameters["ScreenDoor"].SetValue(true);
-            SaturnEffect.CurrentTechnique.Passes[0].Apply();
-            GraphicsDevice.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, verts, 0, 4, indecies, 0, 2);
-
-
+            qdraw.gdev.Clear(Color.CornflowerBlue);
             basicEffect.CurrentTechnique.Passes[0].Apply();
-            spriteBatch.Begin(SpriteSortMode.Deferred,BlendState.NonPremultiplied,SamplerState.PointClamp);
-            spriteBatch.Draw(qdraw.buf, new Rectangle((800-640)/2,0,640,480), Color.White);
+            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.NonPremultiplied, SamplerState.PointClamp);
+            spriteBatch.Draw(qdraw.buf, new Rectangle((800 - 640) / 2, 0, 640, 480), Color.White);
             spriteBatch.End();
 
 

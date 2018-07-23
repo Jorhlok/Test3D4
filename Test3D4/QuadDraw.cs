@@ -7,16 +7,14 @@ namespace Test3D4
     {
         public int width = 320;
         public int height = 240;
-        public int sdrScale = 1; //screen door effect
         SurfaceFormat format;
         public RenderTarget2D buf;
         public GraphicsDevice gdev;
         Effect fx;
-        Matrix projection;
         public static Color noGouraud = new Color(0.5f, 0.5f, 0.5f, 1f);
         public static short[] quickIdx = new short[12];
 
-        public QuadDraw(GraphicsDevice gdev, Effect saturnEffect, int w = 320, int h = 240, int sdrScale = 1, SurfaceFormat format = SurfaceFormat.Color)
+        public QuadDraw(GraphicsDevice gdev, Effect saturnEffect, int w = 320, int h = 240, Matrix? proj = null, int sdrScale = 1, SurfaceFormat format = SurfaceFormat.Color)
         {
             quickIdx[0] = 0;
             quickIdx[1] = 1;
@@ -33,12 +31,15 @@ namespace Test3D4
             quickIdx[9] = 3;
             quickIdx[10] = 0;
             quickIdx[11] = 4;
-
-            this.sdrScale = sdrScale;
+            
             this.gdev = gdev;
             fx = saturnEffect;
             this.format = format;
             Resize(w, h);
+            Projection(proj);
+            CullMode();
+            DepthEnable();
+            ScreenDoorScale(sdrScale);
         }
 
         public void Resize(int w, int h)
@@ -49,19 +50,72 @@ namespace Test3D4
             buf = new RenderTarget2D(gdev, w, h, false, format, DepthFormat.Depth24);
         }
 
-        public void DepthEnable(bool b)
+        public void DepthEnable(bool b = true)
         {
-            gdev.DepthStencilState = b ? DepthStencilState.DepthRead : DepthStencilState.None;
+            gdev.DepthStencilState = b ? DepthStencilState.Default : DepthStencilState.None;
         }
 
-        public void BlendEnable(bool b)
+        public void BlendEnable(bool b = true)
         {
             gdev.BlendState = b ? BlendState.NonPremultiplied : BlendState.Opaque;
         }
 
-        public void GPUProjection(bool b)
+        public void Projection(Matrix? m = null)
         {
+            if (m == null) m = Matrix.CreateOrthographicOffCenter(0, width, height, 0, 1f / 1024, 1024);
+            fx.Parameters["Projection"].SetValue(m.Value);
+        }
 
+        public void ScreenDoors(bool b = true)
+        {
+            fx.Parameters["ScreenDoor"].SetValue(b);
+        }
+
+        public void ScreenDoorScale(int i = 1)
+        {
+            fx.Parameters["ScreenDoorScale"].SetValue(i);
+        }
+
+        public void CullMode(int i = 0)
+        {
+            switch (i)
+            {
+                case 1:
+                    gdev.RasterizerState = RasterizerState.CullCounterClockwise;
+                    break;
+                case 2:
+                    gdev.RasterizerState = RasterizerState.CullClockwise;
+                    break;
+                default:
+                    gdev.RasterizerState = RasterizerState.CullNone;
+                    break;
+            }
+        }
+
+        public void MagicColEnable(bool b = true)
+        {
+            fx.Parameters["MagicColEnable"].SetValue(b);
+        }
+
+        public void MagicCol(Color? c = null)
+        {
+            if (c == null) MagicColEnable(false);
+            else
+            {
+                MagicColEnable(true);
+                fx.Parameters["MagicCol"].SetValue(c.Value.ToVector4());
+            }
+        }
+
+        public void Begin()
+        {
+            gdev.SetRenderTarget(buf);
+            gdev.Clear(Color.Transparent);
+        }
+
+        public void End()
+        {
+            gdev.SetRenderTarget(null);
         }
 
         public void DrawQuadQuick(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, Color c0, Color c1, Color c2, Color c3)
@@ -205,6 +259,22 @@ namespace Test3D4
             fx.Parameters["Tex"].SetValue(Tex);
             fx.CurrentTechnique.Passes[0].Apply();
             gdev.DrawUserIndexedPrimitives(PrimitiveType.TriangleStrip, verts, 0, verts.Length, indicies, 0, indicies.Length-2);
+        }
+
+        public void DrawQuad(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, Color c0, Color c1, Color c2, Color c3, int rows = 32)
+        {
+            var verts = new VertexPositionColor[(int)rows * 2 + 2];
+            var indicies = new short[verts.Length];
+            for (int i = 0; i < verts.Length / 2; i++)
+            {
+                var l = i / rows;
+                verts[2 * i] = new VertexPositionColor(Vector3.Lerp(p0, p3, l), Color.Lerp(c0, c3, l));
+                verts[2 * i + 1] = new VertexPositionColor(Vector3.Lerp(p1, p2, l), Color.Lerp(c1, c2, l));
+                indicies[2 * i] = (short)(2 * i);
+                indicies[2 * i + 1] = (short)(2 * i + 1);
+            }
+            fx.CurrentTechnique.Passes[1].Apply();
+            gdev.DrawUserIndexedPrimitives(PrimitiveType.TriangleStrip, verts, 0, verts.Length, indicies, 0, indicies.Length - 2);
         }
     }
 }
