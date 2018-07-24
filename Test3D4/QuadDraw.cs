@@ -198,12 +198,12 @@ namespace Test3D4
             return new Color((c0.R + c1.R + c2.R + c3.R) / 4, (c0.G + c1.G + c2.G + c3.G) / 4, (c0.B + c1.B + c2.B + c3.B) / 4, (c0.A + c1.A + c2.A + c3.A) / 4);
         }
         
-        public void DrawSprite(Texture2D Tex, Rectangle area, Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, int rt90 = 0, int flips = 0)
+        public void DrawSprite(Texture2D Tex, Rectangle area, Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, int rt90 = 0, int flips = 0, int strips = 0)
         {
-            DrawSprite(Tex, area, p0, p1, p2, p3, noGouraud, noGouraud, noGouraud, noGouraud, rt90, flips);
+            DrawSprite(Tex, area, p0, p1, p2, p3, noGouraud, noGouraud, noGouraud, noGouraud, rt90, flips, strips);
         }
 
-        public void DrawSprite(Texture2D Tex, Rectangle area, Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, Color c0, Color c1, Color c2, Color c3, int rt90 = 0, int flips = 0)
+        public void DrawSprite(Texture2D Tex, Rectangle area, Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, Color c0, Color c1, Color c2, Color c3, int rt90 = 0, int flips = 0, int strips = 0)
         {
             float w = Tex.Width;
             float h = Tex.Height;
@@ -245,6 +245,7 @@ namespace Test3D4
             }
 
             //tesselate into texel thick strips
+            if (strips > 0 && strips < h) h = strips;
             var verts = new VertexPositionColorTexture[(int)h*2+2];
             var indicies = new short[verts.Length];
             for (int i=0; i<verts.Length/2; i++)
