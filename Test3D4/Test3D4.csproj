@@ -146,6 +146,7 @@
   <ItemGroup />
   <ItemGroup>
     <Content Include="Content\assets\fx\Saturn.fx" />
+    <Content Include="Content\assets\fx\SaturnExperimental.fx" />
     <Content Include="Content\assets\img\ring.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
