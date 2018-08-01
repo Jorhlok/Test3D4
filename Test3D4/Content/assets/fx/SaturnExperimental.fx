@@ -105,11 +105,17 @@ Made a fix: https://gist.github.com/ivanpopelyshev/2a75479075286deb8ee5dc1fb2e07
 //!!!!!!!!!!!!!!!!!!!!!!!!
 //As seen in: https://www.shadertoy.com/view/MsccD4
 float cross2d(float2 a, float2 b) { return a.x*b.y - a.y*b.x; }
-float2 invBilinear(float3 p) {
-	float2 e = VertexB.xy - VertexA.xy;
-	float2 f = VertexD.xy - VertexA.xy;
-	float2 g = VertexA.xy - VertexB.xy + VertexC.xy - VertexD.xy;
-	float2 h = p.xy - VertexA.xy;
+float2 invBilinear(float3 pt) {
+	float2 p = pt;
+	p.x -= 0.4;
+	float2 a = VertexD.xy;
+	float2 b = VertexC.xy;
+	float2 c = VertexB.xy;
+	float2 d = VertexA.xy;
+	float2 e = b - a;
+	float2 f = d - a;
+	float2 g = a - b + c - d;
+	float2 h = p.xy - a;
 
 	float k2 = cross2d(g, f);
 	float k1 = cross2d(e, f) + cross2d(h, g);
@@ -149,8 +155,8 @@ float2 invBilinear(float3 p) {
 
 	float2 res = -1;
 
-	if (b1 && !b2) res = float2(u1, v1);
-	if ( /*!b1 &&  */b2) res = float2(u2, v2);
+	if (b1 && !b2) res = float2(u1, v1 * -1 + 1);
+	if ( /*!b1 &&  */b2) res = float2(u2, v2 * -1 + 1);
 
 	return res;
 }
@@ -195,9 +201,24 @@ float4 TexPixelShaderFunction(VSOutputTx input) : COLOR
 	return saturate(textureColor);
 }
 
-VSOutput VertexShaderFunction(VSInputVc input)
+float4 TexPixelShaderFunction2(VSOutputTx input) : COLOR
 {
-	VSOutput output;
+	if (ScreenDoor == true) clip(CalcScreenDoor(input.PositionPS.xy) - 1);
+	float2 uv = invBilinear(input.PositionPS);
+	if (uv.x < -0.5 || uv.y < -0.5) return float4(1,0,1,1); //clip(-1);
+	//return saturate(float4(uv.x,uv.y,0,1));
+	float4 textureColor = tex2D(textureSampler, uv); // bilinearUV(uv));
+	if (MagicColEnable == true && textureColor.r == MagicCol.r && textureColor.g == MagicCol.g && textureColor.b == MagicCol.b && textureColor.a == MagicCol.a) clip(-1);
+	//float4 col = bilinearGouraud(uv);
+	//textureColor.rgb += (col.rgb - 0.5);
+	//textureColor.a *= col.a;
+	if (textureColor.a <= 0) clip(-1);
+	return saturate(textureColor);
+}
+
+VSOutputVc VertexShaderFunction(VSInputVc input)
+{
+	VSOutputVc output;
 
 	output.PositionPS = mul(input.Position, Projection);
 
@@ -224,5 +245,11 @@ technique Simple
 	{
 		VertexShader = compile VS_SHADERMODEL VertexShaderFunction();
 		PixelShader = compile PS_SHADERMODEL PixelShaderFunction();
+	}
+
+	pass Pass3
+	{
+		VertexShader = compile VS_SHADERMODEL TexVertexShaderFunction();
+		PixelShader = compile PS_SHADERMODEL TexPixelShaderFunction2();
 	}
 }

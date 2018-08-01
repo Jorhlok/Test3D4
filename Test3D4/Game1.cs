@@ -49,7 +49,15 @@ namespace Test3D4
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             // TODO: use this.Content to load your game content here
-            SaturnEffect = Content.Load<Effect>("assets/fx/Saturn");
+            SaturnEffect = Content.Load<Effect>("assets/fx/SaturnExperimental");
+            //SaturnEffect.Parameters["GouraudA"].SetValue(Color.Red.ToVector4());
+            //SaturnEffect.Parameters["GouraudB"].SetValue(Color.Lime.ToVector4());
+            //SaturnEffect.Parameters["GouraudC"].SetValue(Color.Blue.ToVector4());
+            //SaturnEffect.Parameters["GouraudD"].SetValue(Color.White.ToVector4());
+            //SaturnEffect.Parameters["UVA"].SetValue(new Vector2(0, 0));
+            //SaturnEffect.Parameters["UVA"].SetValue(new Vector2(1, 0));
+            //SaturnEffect.Parameters["UVA"].SetValue(new Vector2(1, 1));
+            //SaturnEffect.Parameters["UVA"].SetValue(new Vector2(0, 1));
 
             Tex = Content.Load<Texture2D>("assets/img/WALL");
             TexRing = Content.Load<Texture2D>("assets/img/ring");
@@ -96,11 +104,12 @@ namespace Test3D4
             qdraw.Begin();
 
             qdraw.DrawSprite(Tex, new Rectangle(0, 0, Tex.Width, Tex.Height), new Vector3(0 + 32, 0, -2), new Vector3(95 - 32, 0, -2), new Vector3(95, 95, -2), new Vector3(0, 95, -2), new Color(0.75f, 0.25f, 0.25f, 1f), new Color(0.25f, 0.75f, 0.25f, 1f), new Color(0.25f, 0.25f, 0.75f, 1f), new Color(0.75f, 0.75f, 0.75f, 1f));
-            qdraw.DrawSprite(Tex, new Rectangle(0, 0, Tex.Width, Tex.Height), new Vector3(96 + 32, 0, -2), new Vector3(95 + 96 - 32, 0, -2), new Vector3(95 + 96, 95, -2), new Vector3(96, 95, -2), new Color(0.75f, 0.25f, 0.25f, 1f), new Color(0.25f, 0.75f, 0.25f, 1f), new Color(0.25f, 0.25f, 0.75f, 1f), new Color(0.75f, 0.75f, 0.75f, 1f), 0, 0, 6);
-            //qdraw.DrawSpriteQuick(Tex, new Rectangle(0, 0, Tex.Width, Tex.Height), new Vector3(96 + 32, 0, -2), new Vector3(95 + 96 - 32, 0, -2), new Vector3(95 + 96, 95, -2), new Vector3(96, 95, -2), new Color(0.75f, 0.25f, 0.25f, 1f), new Color(0.25f, 0.75f, 0.25f, 1f), new Color(0.25f, 0.25f, 0.75f, 1f), new Color(0.75f, 0.75f, 0.75f, 1f));
-
             qdraw.DrawSprite(Tex, new Rectangle(0, 0, Tex.Width, Tex.Height), new Vector3(0, 0+96, -2), new Vector3(95, 0+96, -2), new Vector3(95, 95+96, -2), new Vector3(0, 95+96, -2), new Color(0.75f, 0.25f, 0.25f, 1f), new Color(0.25f, 0.75f, 0.25f, 1f), new Color(0.25f, 0.25f, 0.75f, 1f), new Color(0.75f, 0.75f, 0.75f, 1f));
+            
+            //qdraw.DrawSprite(Tex, new Rectangle(0, 0, Tex.Width, Tex.Height), new Vector3(96 + 32, 0, -2), new Vector3(95 + 96 - 32, 0, -2), new Vector3(95 + 96, 95, -2), new Vector3(96, 95, -2), new Color(0.75f, 0.25f, 0.25f, 1f), new Color(0.25f, 0.75f, 0.25f, 1f), new Color(0.25f, 0.25f, 0.75f, 1f), new Color(0.75f, 0.75f, 0.75f, 1f), 0, 0, 6);
+            qdraw.DrawSpriteQuick(Tex, new Rectangle(0, 0, Tex.Width, Tex.Height), new Vector3(96 + 32, 0, -2), new Vector3(95 + 96 - 32, 0, -2), new Vector3(95 + 96, 95, -2), new Vector3(96, 95, -2), new Color(0.75f, 0.25f, 0.25f, 1f), new Color(0.25f, 0.75f, 0.25f, 1f), new Color(0.25f, 0.25f, 0.75f, 1f), new Color(0.75f, 0.75f, 0.75f, 1f));
             qdraw.DrawSpriteQuick(Tex, new Rectangle(0, 0, Tex.Width, Tex.Height), new Vector3(96, 0+96, -2), new Vector3(95 + 96, 0+96, -2), new Vector3(95 + 96, 95+96, -2), new Vector3(96, 95+96, -2), new Color(0.75f, 0.25f, 0.25f, 1f), new Color(0.25f, 0.75f, 0.25f, 1f), new Color(0.25f, 0.25f, 0.75f, 1f), new Color(0.75f, 0.75f, 0.75f, 1f));
+
 
             qdraw.DrawSpriteQuick(TexRing, new Rectangle(0, 0, TexRing.Width / 8, TexRing.Height), new Vector3(0+192, 95, -1), new Vector3(95+192, 95, -1), new Vector3(95+192, 95+95, -3), new Vector3(0+192, 95+95, -3));
 

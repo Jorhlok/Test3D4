@@ -178,8 +178,13 @@ namespace Test3D4
             verts[3] = new VertexPositionColorTexture(p3, c3, uv[3]);
             verts[4] = new VertexPositionColorTexture(AvgVertex3(p0, p1, p2, p3), AvgCol(c0, c1, c2, c3), AvgVertex2(uv[0], uv[1], uv[2], uv[3]));
 
+            fx.Parameters["VertexA"].SetValue(p0);
+            fx.Parameters["VertexB"].SetValue(p1);
+            fx.Parameters["VertexC"].SetValue(p2);
+            fx.Parameters["VertexD"].SetValue(p3);
+
             fx.Parameters["Tex"].SetValue(Tex);
-            fx.CurrentTechnique.Passes[0].Apply();
+            fx.CurrentTechnique.Passes[2].Apply();
             gdev.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, verts, 0, 5, quickIdx, 0, 4);
         }
 
