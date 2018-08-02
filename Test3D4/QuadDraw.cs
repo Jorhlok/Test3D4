@@ -13,6 +13,9 @@ namespace Test3D4
         Effect fx;
         public static Color noGouraud = new Color(0.5f, 0.5f, 0.5f, 1f);
         public static short[] quickIdx = new short[12];
+        public static short[] halfIdx = new short[4];
+        public static float smallNum = -1f;
+        public VertexPosition[] fullScreen = new VertexPosition[4];
 
         public QuadDraw(GraphicsDevice gdev, Effect saturnEffect, int w = 320, int h = 240, Matrix? proj = null, int sdrScale = 1, SurfaceFormat format = SurfaceFormat.Color)
         {
@@ -32,6 +35,11 @@ namespace Test3D4
             quickIdx[10] = 0;
             quickIdx[11] = 4;
             
+            halfIdx[0] = 0;
+            halfIdx[1] = 1;
+            halfIdx[2] = 2;
+            halfIdx[3] = 3;
+
             this.gdev = gdev;
             fx = saturnEffect;
             this.format = format;
@@ -48,6 +56,10 @@ namespace Test3D4
             width = w;
             height = h;
             buf = new RenderTarget2D(gdev, w, h, false, format, DepthFormat.Depth24);
+            fullScreen[0] = new VertexPosition(new Vector3(0, 0, smallNum));
+            fullScreen[1] = new VertexPosition(new Vector3(w, 0, smallNum));
+            fullScreen[2] = new VertexPosition(new Vector3(0, h, smallNum));
+            fullScreen[3] = new VertexPosition(new Vector3(w, h, smallNum));
         }
 
         public void DepthEnable(bool b = true)
@@ -324,15 +336,9 @@ namespace Test3D4
                 uv[1] = uv[0];
                 uv[0] = uv[4];
             }
-            var verts = new VertexPosition[5];
-            verts[0] = new VertexPosition(p0);
-            verts[1] = new VertexPosition(p1);
-            verts[2] = new VertexPosition(p2);
-            verts[3] = new VertexPosition(p3);
-            verts[4] = new VertexPosition(AvgVertex3(p0, p1, p2, p3));
 
-            fx.Parameters["VertexA"].SetValue(p1);
-            fx.Parameters["VertexB"].SetValue(p0);
+            fx.Parameters["VertexA"].SetValue(p0);
+            fx.Parameters["VertexB"].SetValue(p1);
             fx.Parameters["VertexC"].SetValue(p2);
             fx.Parameters["VertexD"].SetValue(p3);
 
@@ -348,7 +354,7 @@ namespace Test3D4
 
             fx.Parameters["Tex"].SetValue(Tex);
             fx.CurrentTechnique.Passes[2].Apply();
-            gdev.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, verts, 0, 5, quickIdx, 0, 4);
+            gdev.DrawUserIndexedPrimitives(PrimitiveType.TriangleStrip, fullScreen, 0, 4, halfIdx, 0, 2);
         }
 
     }

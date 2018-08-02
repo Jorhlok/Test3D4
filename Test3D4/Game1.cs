@@ -16,6 +16,7 @@ namespace Test3D4
         public Texture2D Tex;
         public Texture2D TexRing;
         QuadDraw qdraw;
+        float statetime = 0;
 
         public Game1()
         {
@@ -34,7 +35,7 @@ namespace Test3D4
             // TODO: Add your initialization logic here
             basicEffect = new BasicEffect(GraphicsDevice);
             basicEffect.VertexColorEnabled = true;
-            basicEffect.Projection = Matrix.CreateOrthographicOffCenter(0, 12, 12, 0, 1/256f, 12);
+            basicEffect.Projection = Matrix.CreateOrthographicOffCenter(0, 12, 12, 0, 0/*1/1024f*/, 12);
 
             base.Initialize();
         }
@@ -109,10 +110,22 @@ namespace Test3D4
             //qdraw.DrawSprite(Tex, new Rectangle(0, 0, Tex.Width, Tex.Height), new Vector3(96 + 32, 0, -2), new Vector3(95 + 96 - 32, 0, -2), new Vector3(95 + 96, 95, -2), new Vector3(96, 95, -2), Color.Red, Color.Lime, Color.Blue, Color.White, 0, 0, 6);
             qdraw.DrawSpriteBilinear(Tex, new Rectangle(0, 0, Tex.Width, Tex.Height), new Vector3(96 + 32, 0, -2), new Vector3(95 + 96 - 32, 0, -2), new Vector3(95 + 96, 95, -2), new Vector3(96, 95, -2), Color.Red, Color.Lime, Color.Blue, Color.White);
             qdraw.DrawSpriteBilinear(Tex, new Rectangle(0, 0, Tex.Width, Tex.Height), new Vector3(96, 0+96, -2), new Vector3(95 + 96, 0+96, -2), new Vector3(95 + 96, 95+96, -2), new Vector3(96, 95+96, -2), Color.Red, Color.Lime, Color.Blue, Color.White);
-
-
+            
             qdraw.DrawSpriteBilinear(TexRing, new Rectangle(0, 0, TexRing.Width / 8, TexRing.Height), new Vector3(0+192, 95, -1), new Vector3(95+192, 95, -1), new Vector3(95+192, 95+95, -3), new Vector3(0+192, 95+95, -3));
 
+            float ax = (float)System.Math.Sin(1.11 * gameTime.TotalGameTime.TotalSeconds + 0.1);
+            float ay = (float)System.Math.Sin(1.11 * gameTime.TotalGameTime.TotalSeconds + 4);
+            float bx = (float)System.Math.Sin(1.13 * gameTime.TotalGameTime.TotalSeconds + 1);
+            float by = (float)System.Math.Sin(1.13 * gameTime.TotalGameTime.TotalSeconds + 3);
+            float cx = (float)System.Math.Cos(1.17 * gameTime.TotalGameTime.TotalSeconds + 2);
+            float cy = (float)System.Math.Cos(1.17 * gameTime.TotalGameTime.TotalSeconds + 2);
+            float dx = (float)System.Math.Cos(1.15 * gameTime.TotalGameTime.TotalSeconds + 3);
+            float dy = (float)System.Math.Cos(1.15 * gameTime.TotalGameTime.TotalSeconds + 1);
+            float e = 120;
+            float f = (320 - 240)/2;
+
+            qdraw.DrawSpriteBilinear(Tex, new Rectangle(0, 0, Tex.Width, Tex.Height), new Vector3(ax*e+e+f, ay*e+e, -2), new Vector3(bx*e+e+f, by*e+e, -2), new Vector3(cx*e+e+f, cy*e+e, -2), new Vector3(dx*e+e+f, dy*e+e, -2), Color.Red, Color.Lime, Color.Blue, Color.White);
+            
             qdraw.End();
 
             qdraw.gdev.Clear(Color.CornflowerBlue);
