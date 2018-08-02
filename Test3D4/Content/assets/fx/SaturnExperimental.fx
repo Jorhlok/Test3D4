@@ -162,20 +162,43 @@ float2 invBilinear(float3 pt) {
 }
 
 float4 bilinearGouraud(float2 uv) {
-	return GouraudA * ((1 - uv.x) * (1 - uv.y))
-		+ GouraudB * (uv.x * (1 - uv.y))
-		+ GouraudD * (uv.x  * uv.y)
-		+ GouraudC * ((1 - uv.x) * uv.y);
+	return float4(GouraudA.r * ((1 - uv.x) * (1 - uv.y))
+				+ GouraudB.r * (uv.x * (1 - uv.y))
+				+ GouraudC.r * (uv.x  * uv.y)
+				+ GouraudD.r * ((1 - uv.x) * uv.y)
+				, GouraudA.g * ((1 - uv.x) * (1 - uv.y))
+				+ GouraudB.g * (uv.x * (1 - uv.y))
+				+ GouraudC.g * (uv.x  * uv.y)
+				+ GouraudD.g * ((1 - uv.x) * uv.y)
+				, GouraudA.b * ((1 - uv.x) * (1 - uv.y))
+				+ GouraudB.b * (uv.x * (1 - uv.y))
+				+ GouraudC.b * (uv.x  * uv.y)
+				+ GouraudD.b * ((1 - uv.x) * uv.y)
+				, GouraudA.a * ((1 - uv.x) * (1 - uv.y))
+				+ GouraudB.a * (uv.x * (1 - uv.y))
+				+ GouraudC.a * (uv.x  * uv.y)
+				+ GouraudD.a * ((1 - uv.x) * uv.y));
 }
 
 float2 bilinearUV(float2 uv) {
-	return UVA * ((1 - uv.x) * (1 - uv.y))
-		+ UVB * (uv.x * (1 - uv.y))
-		+ UVD * (uv.x  * uv.y)
-		+ UVC * ((1 - uv.x) * uv.y);
+	return float2(UVA.x * ((1 - uv.x) * (1 - uv.y))
+				+ UVB.x * (uv.x * (1 - uv.y))
+				+ UVC.x * (uv.x  * uv.y)
+				+ UVD.x * ((1 - uv.x) * uv.y)
+				, UVA.y * ((1 - uv.x) * (1 - uv.y))
+				+ UVB.y * (uv.x * (1 - uv.y))
+				+ UVC.y * (uv.x  * uv.y)
+				+ UVD.y * ((1 - uv.x) * uv.y));
 }
 
 
+VSOutput PosVertexShaderFunction(VSInput input)
+{
+	VSOutput output;
+
+	output.PositionPS = mul(input.Position, Projection);
+	return output;
+}
 
 VSOutputTx TexVertexShaderFunction(VSInputTxVc input)
 {
@@ -194,24 +217,22 @@ float4 TexPixelShaderFunction(VSOutputTx input) : COLOR
 	if (ScreenDoor == true) clip(CalcScreenDoor(input.PositionPS.xy) - 1);
 	float4 textureColor = tex2D(textureSampler, input.TexCoord);
 	if (MagicColEnable == true && textureColor.r == MagicCol.r && textureColor.g == MagicCol.g && textureColor.b == MagicCol.b && textureColor.a == MagicCol.a) clip(-1);
-	float4 col = input.Diffuse * 2 - 1;
-	textureColor.rgb += col.rgb;
-	textureColor.a *= col.a;
+	textureColor.rgb += input.Diffuse.rgb - 0.5;
+	textureColor.a *= input.Diffuse.a;
 	if (textureColor.a <= 0) clip(-1);
 	return saturate(textureColor);
 }
 
-float4 TexPixelShaderFunction2(VSOutputTx input) : COLOR
+float4 TexPixelShaderFunction2(VSOutput input) : COLOR
 {
 	if (ScreenDoor == true) clip(CalcScreenDoor(input.PositionPS.xy) - 1);
 	float2 uv = invBilinear(input.PositionPS);
 	if (uv.x < -0.5 || uv.y < -0.5) return float4(1,0,1,1); //clip(-1);
-	//return saturate(float4(uv.x,uv.y,0,1));
-	float4 textureColor = tex2D(textureSampler, uv); // bilinearUV(uv));
+	float4 textureColor = tex2D(textureSampler, bilinearUV(uv));
 	if (MagicColEnable == true && textureColor.r == MagicCol.r && textureColor.g == MagicCol.g && textureColor.b == MagicCol.b && textureColor.a == MagicCol.a) clip(-1);
-	//float4 col = bilinearGouraud(uv);
-	//textureColor.rgb += (col.rgb - 0.5);
-	//textureColor.a *= col.a;
+	float4 col = bilinearGouraud(uv);
+	textureColor.rgb += col.rgb - 0.5;
+	textureColor.a *= col.a;
 	if (textureColor.a <= 0) clip(-1);
 	return saturate(textureColor);
 }
@@ -249,7 +270,7 @@ technique Simple
 
 	pass Pass3
 	{
-		VertexShader = compile VS_SHADERMODEL TexVertexShaderFunction();
+		VertexShader = compile VS_SHADERMODEL PosVertexShaderFunction();
 		PixelShader = compile PS_SHADERMODEL TexPixelShaderFunction2();
 	}
 }

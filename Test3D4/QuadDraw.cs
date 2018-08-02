@@ -282,5 +282,74 @@ namespace Test3D4
             fx.CurrentTechnique.Passes[1].Apply();
             gdev.DrawUserIndexedPrimitives(PrimitiveType.TriangleStrip, verts, 0, verts.Length, indicies, 0, indicies.Length - 2);
         }
+
+
+        public void DrawSpriteBilinear(Texture2D Tex, Rectangle area, Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, int rt90 = 0, int flips = 0)
+        {
+            DrawSpriteBilinear(Tex, area, p0, p1, p2, p3, noGouraud, noGouraud, noGouraud, noGouraud, rt90, flips);
+        }
+
+        public void DrawSpriteBilinear(Texture2D Tex, Rectangle area, Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, Color c0, Color c1, Color c2, Color c3, int rt90 = 0, int flips = 0)
+        {
+            float w = Tex.Width;
+            float h = Tex.Height;
+            var uv = new Vector2[5];
+            uv[0] = new Vector2(area.X / w, area.Y / h);
+            uv[1] = new Vector2((area.X + area.Width) / w, area.Y / h);
+            uv[2] = new Vector2((area.X + area.Width) / w, (area.Y + area.Height) / h);
+            uv[3] = new Vector2(area.X / w, (area.Y + area.Height) / h);
+            if ((flips & 1) != 0)
+            { //flip horizontally
+                w = uv[0].X;
+                h = uv[3].X;
+                uv[0].X = uv[1].X;
+                uv[1].X = w;
+                uv[3].X = uv[2].X;
+                uv[2].X = h;
+            }
+            if ((flips & 2) != 0)
+            { //flip vertically
+                w = uv[0].Y;
+                h = uv[1].Y;
+                uv[0].Y = uv[3].Y;
+                uv[3].Y = w;
+                uv[1].Y = uv[2].Y;
+                uv[2].Y = h;
+            }
+            for (var i = 0; i < (rt90 & 3); i++) //& 3 or % 4 should work
+            { //rotate clockwise
+                uv[4] = uv[3];
+                uv[3] = uv[2];
+                uv[2] = uv[1];
+                uv[1] = uv[0];
+                uv[0] = uv[4];
+            }
+            var verts = new VertexPosition[5];
+            verts[0] = new VertexPosition(p0);
+            verts[1] = new VertexPosition(p1);
+            verts[2] = new VertexPosition(p2);
+            verts[3] = new VertexPosition(p3);
+            verts[4] = new VertexPosition(AvgVertex3(p0, p1, p2, p3));
+
+            fx.Parameters["VertexA"].SetValue(p1);
+            fx.Parameters["VertexB"].SetValue(p0);
+            fx.Parameters["VertexC"].SetValue(p2);
+            fx.Parameters["VertexD"].SetValue(p3);
+
+            fx.Parameters["UVA"].SetValue(uv[0]);
+            fx.Parameters["UVB"].SetValue(uv[1]);
+            fx.Parameters["UVC"].SetValue(uv[2]);
+            fx.Parameters["UVD"].SetValue(uv[3]);
+
+            fx.Parameters["GouraudA"].SetValue(c0.ToVector4());
+            fx.Parameters["GouraudB"].SetValue(c1.ToVector4());
+            fx.Parameters["GouraudC"].SetValue(c2.ToVector4());
+            fx.Parameters["GouraudD"].SetValue(c3.ToVector4());
+
+            fx.Parameters["Tex"].SetValue(Tex);
+            fx.CurrentTechnique.Passes[2].Apply();
+            gdev.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, verts, 0, 5, quickIdx, 0, 4);
+        }
+
     }
 }
