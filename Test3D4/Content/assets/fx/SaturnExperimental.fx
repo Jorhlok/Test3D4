@@ -228,8 +228,8 @@ float4 TexPixelShaderFunction2(VSOutput input) : COLOR
 {
 	if (ScreenDoor == true) clip(CalcScreenDoor(input.PositionPS.xy) - 1);
 	float2 uv = invBilinear(input.PositionPS);
-	//if (uv.x < -0.5 || uv.y < -0.5) clip(-1);
-	if (uv.x < -0.5 || uv.y < -0.5) return float4(1, 0, 1, 1);
+	if (uv.x < -0.5 || uv.y < -0.5) clip(-1);
+	//if (uv.x < -0.5 || uv.y < -0.5) return float4(1, 0, 1, 1);
 	float4 textureColor = tex2D(textureSampler, bilinearUV(uv));
 	if (MagicColEnable == true && textureColor.r == MagicCol.r && textureColor.g == MagicCol.g && textureColor.b == MagicCol.b && textureColor.a == MagicCol.a) clip(-1);
 	float4 col = bilinearGouraud(uv);

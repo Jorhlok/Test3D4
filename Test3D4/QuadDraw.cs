@@ -10,7 +10,7 @@ namespace Test3D4
         SurfaceFormat format;
         public RenderTarget2D buf;
         public GraphicsDevice gdev;
-        Effect fx;
+        public Effect fx;
         public static Color noGouraud = new Color(0.5f, 0.5f, 0.5f, 1f);
         public static short[] quickIdx = new short[12];
         public static short[] halfIdx = new short[4];
@@ -131,6 +131,23 @@ namespace Test3D4
             gdev.SetRenderTarget(null);
         }
 
+        /*
+         * 6867.3928
+         * 6995.4001
+         * 6851.3919
+         * 6944.3972
+         * 6838.3911
+         * 6815.3898
+         * 6864.3927
+         * 6919.3958
+         * 6901.3948
+         * 6857.3922
+         * avg 6885.49384
+         * qps 145232.865388781
+         * 60fps 2420.54775647968
+         * 30fps 4841.09551295936
+        */
+
         public void DrawQuadQuick(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, Color c0, Color c1, Color c2, Color c3)
         {
             var verts = new VertexPositionColor[5];
@@ -149,6 +166,22 @@ namespace Test3D4
             DrawSpriteQuick(Tex, area, p0, p1, p2, p3, noGouraud, noGouraud, noGouraud, noGouraud, rt90, flips);
         }
 
+        /*
+         * 8050.4605
+         * 8045.4601
+         * 8059.4609
+         * 7989.457
+         * 8070.4616
+         * 8042.46
+         * 8043.46
+         * 8056.4608
+         * 7890.4514
+         * 8038.4598
+         * avg 8028.65921
+         * qps 124553.798317216
+         * 60fps 2075.89663862027
+         * 30fps 4151.79327724054
+         */
         public void DrawSpriteQuick(Texture2D Tex, Rectangle area, Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, Color c0, Color c1, Color c2, Color c3, int rt90 = 0, int flips = 0)
         {
             float w = Tex.Width;
@@ -191,13 +224,8 @@ namespace Test3D4
             verts[3] = new VertexPositionColorTexture(p3, c3, uv[3]);
             verts[4] = new VertexPositionColorTexture(AvgVertex3(p0, p1, p2, p3), AvgCol(c0, c1, c2, c3), AvgVertex2(uv[0], uv[1], uv[2], uv[3]));
 
-            fx.Parameters["VertexA"].SetValue(p0);
-            fx.Parameters["VertexB"].SetValue(p1);
-            fx.Parameters["VertexC"].SetValue(p2);
-            fx.Parameters["VertexD"].SetValue(p3);
-
             fx.Parameters["Tex"].SetValue(Tex);
-            fx.CurrentTechnique.Passes[2].Apply();
+            fx.CurrentTechnique.Passes[0].Apply();
             gdev.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, verts, 0, 5, quickIdx, 0, 4);
         }
 
@@ -221,6 +249,39 @@ namespace Test3D4
             DrawSprite(Tex, area, p0, p1, p2, p3, noGouraud, noGouraud, noGouraud, noGouraud, rt90, flips, strips);
         }
 
+        /*
+         * 96 strips
+         * 25656.4675
+         * 25565.4623
+         * 25539.4608
+         * 25433.4547
+         * 25344.4496
+         * 25326.4486
+         * 25285.4462
+         * 25299.447
+         * 25298.4469
+         * 25495.4583
+         * avg 25424.45419
+         * qps 39332.2111274004
+         * 60fps 655.53685212334
+         * 30fps 1311.07370424668
+         * 
+         * 32 strips
+         * 13811.79
+         * 14014.8016
+         * 13926.7966
+         * 13998.8007
+         * 14025.8023
+         * 13840.7916
+         * 13935.7971
+         * 13998.8007
+         * 13912.7958
+         * 13902.7952
+         * avg 13936.89716
+         * qps 71751.9824190193
+         * 60fps 1195.86637365032
+         * 30fps 2391.73274730064
+        */
         public void DrawSprite(Texture2D Tex, Rectangle area, Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, Color c0, Color c1, Color c2, Color c3, int rt90 = 0, int flips = 0, int strips = 0)
         {
             float w = Tex.Width;
@@ -280,6 +341,23 @@ namespace Test3D4
             gdev.DrawUserIndexedPrimitives(PrimitiveType.TriangleStrip, verts, 0, verts.Length, indicies, 0, indicies.Length-2);
         }
 
+        /*
+         * 32 strips
+         * 11216.6415
+         * 11114.6357
+         * 10986.6284
+         * 11144.6374
+         * 11135.6369
+         * 11160.6384
+         * 11101.635
+         * 11102.635
+         * 11217.6416
+         * 11071.6332
+         * avg 11125.23631
+         * qps 89885.7311553142
+         * 60fps 1498.09551925524
+         * 30fps 2996.19103851047
+        */
         public void DrawQuad(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, Color c0, Color c1, Color c2, Color c3, int rows = 32)
         {
             var verts = new VertexPositionColor[(int)rows * 2 + 2];
@@ -301,6 +379,23 @@ namespace Test3D4
         {
             DrawSpriteBilinearToScreen(Tex, area, p0, p1, p2, p3, noGouraud, noGouraud, noGouraud, noGouraud, rt90, flips);
         }
+
+        /*
+         * 9706.5551
+         * 9698.5547
+         * 9731.5566
+         * 9703.555
+         * 9732.5567
+         * 9648.5518
+         * 9703.555
+         * 9668.553
+         * 9691.5543
+         * 9756.5581
+         * avg 9704.15503
+         * qps 103048.642247423
+         * 60fps 1717.47737079038
+         * 30fps 3434.95474158077
+        */
 
         public void DrawSpriteBilinearToScreen(Texture2D Tex, Rectangle area, Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, Color c0, Color c1, Color c2, Color c3, int rt90 = 0, int flips = 0)
         {
@@ -378,6 +473,22 @@ namespace Test3D4
             DrawSpriteBilinear(Tex, area, p0, p1, p2, p3, noGouraud, noGouraud, noGouraud, noGouraud, rt90, flips);
         }
 
+        /*
+         * 10868.6216
+         * 10942.6258
+         * 10955.6266
+         * 11025.6306
+         * 10959.6269
+         * 11031.631
+         * 10975.6278
+         * 11082.6339
+         * 10812.6185
+         * 10827.6193
+         * avg 10948.2262
+         * qps 91338.9969966094
+         * 60fps 1522.31661661016
+         * 30fps 3044.63323322031
+         */
         public void DrawSpriteBilinear(Texture2D Tex, Rectangle area, Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, Color c0, Color c1, Color c2, Color c3, int rt90 = 0, int flips = 0)
         {
             float w = Tex.Width;
