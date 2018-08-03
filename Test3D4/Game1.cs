@@ -108,10 +108,10 @@ namespace Test3D4
             qdraw.DrawSprite(Tex, new Rectangle(0, 0, Tex.Width, Tex.Height), new Vector3(0, 0+96, -2), new Vector3(95, 0+96, -2), new Vector3(95, 95+96, -2), new Vector3(0, 95+96, -2), Color.Red, Color.Lime, Color.Blue, Color.White);
 
             //qdraw.DrawSprite(Tex, new Rectangle(0, 0, Tex.Width, Tex.Height), new Vector3(96 + 32, 0, -2), new Vector3(95 + 96 - 32, 0, -2), new Vector3(95 + 96, 95, -2), new Vector3(96, 95, -2), Color.Red, Color.Lime, Color.Blue, Color.White, 0, 0, 6);
-            qdraw.DrawSpriteBilinear(Tex, new Rectangle(0, 0, Tex.Width, Tex.Height), new Vector3(96 + 32, 0, -2), new Vector3(95 + 96 - 32, 0, -2), new Vector3(95 + 96, 95, -2), new Vector3(96, 95, -2), Color.Red, Color.Lime, Color.Blue, Color.White);
-            qdraw.DrawSpriteBilinear(Tex, new Rectangle(0, 0, Tex.Width, Tex.Height), new Vector3(96, 0+96, -2), new Vector3(95 + 96, 0+96, -2), new Vector3(95 + 96, 95+96, -2), new Vector3(96, 95+96, -2), Color.Red, Color.Lime, Color.Blue, Color.White);
+            qdraw.DrawSprite(Tex, new Rectangle(0, 0, Tex.Width, Tex.Height), new Vector3(96 + 32, 0, -2), new Vector3(95 + 96 - 32, 0, -2), new Vector3(95 + 96, 95, -2), new Vector3(96, 95, -2), Color.Red, Color.Lime, Color.Blue, Color.White);
+            qdraw.DrawSprite(Tex, new Rectangle(0, 0, Tex.Width, Tex.Height), new Vector3(96, 0+96, -2), new Vector3(95 + 96, 0+96, -2), new Vector3(95 + 96, 95+96, -2), new Vector3(96, 95+96, -2), Color.Red, Color.Lime, Color.Blue, Color.White);
             
-            qdraw.DrawSpriteBilinear(TexRing, new Rectangle(0, 0, TexRing.Width / 8, TexRing.Height), new Vector3(0+192, 95, -1), new Vector3(95+192, 95, -1), new Vector3(95+192, 95+95, -3), new Vector3(0+192, 95+95, -3));
+            qdraw.DrawSprite(TexRing, new Rectangle(0, 0, TexRing.Width / 8, TexRing.Height), new Vector3(0+192, 95, -1), new Vector3(95+192, 95, -1), new Vector3(95+192, 95+95, -3), new Vector3(0+192, 95+95, -3));
 
             float ax = (float)System.Math.Sin(1.11 * gameTime.TotalGameTime.TotalSeconds + 0.1);
             float ay = (float)System.Math.Sin(1.11 * gameTime.TotalGameTime.TotalSeconds + 4);
@@ -124,8 +124,20 @@ namespace Test3D4
             float e = 120;
             float f = (320 - 240)/2;
 
-            qdraw.DrawSpriteBilinear(Tex, new Rectangle(0, 0, Tex.Width, Tex.Height), new Vector3(ax*e+e+f, ay*e+e, -2), new Vector3(bx*e+e+f, by*e+e, -2), new Vector3(cx*e+e+f, cy*e+e, -2), new Vector3(dx*e+e+f, dy*e+e, -2), Color.Red, Color.Lime, Color.Blue, Color.White);
-            
+            var pts = new Vector3[4];
+            pts[0] = new Vector3(ax * e + e + f, ay * e + e, -2);
+            pts[1] = new Vector3(bx * e + e + f, by * e + e, -2);
+            pts[2] = new Vector3(cx * e + e + f, cy * e + e, -2);
+            pts[3] = new Vector3(dx * e + e + f, dy * e + e, -2);
+
+            qdraw.DrawSpriteBilinear(Tex, new Rectangle(0, 0, Tex.Width, Tex.Height), pts[0], pts[1], pts[2], pts[3], Color.Red, Color.Lime, Color.Blue, Color.White);
+            //qdraw.DrawSpriteBilinear(Tex, new Rectangle(0, 0, Tex.Width, Tex.Height), new Vector3(0, 0, -2), new Vector3(192, 0, -2), new Vector3(192, 192, -2), new Vector3(0, 192, -2), Color.Red, Color.Lime, Color.Blue, Color.White);
+
+            qdraw.DrawQuadQuick(pts[0], new Vector3(pts[0].X + 1, pts[0].Y, -2), new Vector3(pts[0].X + 1, pts[0].Y + 1, -2), new Vector3(pts[0].X, pts[0].Y + 1, -2), Color.Cyan, Color.Cyan, Color.Cyan, Color.Cyan);
+            qdraw.DrawQuadQuick(pts[1], new Vector3(pts[1].X + 1, pts[1].Y, -2), new Vector3(pts[1].X + 1, pts[1].Y + 1, -2), new Vector3(pts[1].X, pts[1].Y + 1, -2), Color.Cyan, Color.Cyan, Color.Cyan, Color.Cyan);
+            qdraw.DrawQuadQuick(pts[2], new Vector3(pts[2].X + 1, pts[2].Y, -2), new Vector3(pts[2].X + 1, pts[2].Y + 1, -2), new Vector3(pts[2].X, pts[2].Y + 1, -2), Color.Cyan, Color.Cyan, Color.Cyan, Color.Cyan);
+            qdraw.DrawQuadQuick(pts[3], new Vector3(pts[3].X + 1, pts[3].Y, -2), new Vector3(pts[3].X + 1, pts[3].Y + 1, -2), new Vector3(pts[3].X, pts[3].Y + 1, -2), Color.Cyan, Color.Cyan, Color.Cyan, Color.Cyan);
+
             qdraw.End();
 
             qdraw.gdev.Clear(Color.CornflowerBlue);

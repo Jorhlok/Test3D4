@@ -16,6 +16,7 @@ namespace Test3D4
         public static short[] halfIdx = new short[4];
         public static float smallNum = -1f;
         public VertexPosition[] fullScreen = new VertexPosition[4];
+        Vector3ClockCompare clocker = new Vector3ClockCompare();
 
         public QuadDraw(GraphicsDevice gdev, Effect saturnEffect, int w = 320, int h = 240, Matrix? proj = null, int sdrScale = 1, SurfaceFormat format = SurfaceFormat.Color)
         {
@@ -296,6 +297,82 @@ namespace Test3D4
         }
 
 
+        public void DrawSpriteBilinearToScreen(Texture2D Tex, Rectangle area, Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, int rt90 = 0, int flips = 0)
+        {
+            DrawSpriteBilinearToScreen(Tex, area, p0, p1, p2, p3, noGouraud, noGouraud, noGouraud, noGouraud, rt90, flips);
+        }
+
+        public void DrawSpriteBilinearToScreen(Texture2D Tex, Rectangle area, Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, Color c0, Color c1, Color c2, Color c3, int rt90 = 0, int flips = 0)
+        {
+            float w = Tex.Width;
+            float h = Tex.Height;
+            var uv = new Vector2[5];
+            uv[0] = new Vector2(area.X / w, area.Y / h);
+            uv[1] = new Vector2((area.X + area.Width) / w, area.Y / h);
+            uv[2] = new Vector2((area.X + area.Width) / w, (area.Y + area.Height) / h);
+            uv[3] = new Vector2(area.X / w, (area.Y + area.Height) / h);
+            if ((flips & 1) != 0)
+            { //flip horizontally
+                w = uv[0].X;
+                h = uv[3].X;
+                uv[0].X = uv[1].X;
+                uv[1].X = w;
+                uv[3].X = uv[2].X;
+                uv[2].X = h;
+            }
+            if ((flips & 2) != 0)
+            { //flip vertically
+                w = uv[0].Y;
+                h = uv[1].Y;
+                uv[0].Y = uv[3].Y;
+                uv[3].Y = w;
+                uv[1].Y = uv[2].Y;
+                uv[2].Y = h;
+            }
+            for (var i = 0; i < (rt90 & 3); i++) //& 3 or % 4 should work
+            { //rotate clockwise
+                uv[4] = uv[3];
+                uv[3] = uv[2];
+                uv[2] = uv[1];
+                uv[1] = uv[0];
+                uv[0] = uv[4];
+            }
+
+            fx.Parameters["VertexA"].SetValue(p0);
+            fx.Parameters["VertexB"].SetValue(p1);
+            fx.Parameters["VertexC"].SetValue(p2);
+            fx.Parameters["VertexD"].SetValue(p3);
+
+            fx.Parameters["UVA"].SetValue(uv[0]);
+            fx.Parameters["UVB"].SetValue(uv[1]);
+            fx.Parameters["UVC"].SetValue(uv[2]);
+            fx.Parameters["UVD"].SetValue(uv[3]);
+
+            fx.Parameters["GouraudA"].SetValue(c0.ToVector4());
+            fx.Parameters["GouraudB"].SetValue(c1.ToVector4());
+            fx.Parameters["GouraudC"].SetValue(c2.ToVector4());
+            fx.Parameters["GouraudD"].SetValue(c3.ToVector4());
+
+            fx.Parameters["Tex"].SetValue(Tex);
+            fx.CurrentTechnique.Passes[2].Apply();
+            gdev.DrawUserIndexedPrimitives(PrimitiveType.TriangleStrip, fullScreen, 0, 4, halfIdx, 0, 2);
+        }
+
+        public bool ptInTriangle2D(Vector3 p, Vector3 p0, Vector3 p1, Vector3 p2)
+        {
+            //barycentric coordinates
+            //https://stackoverflow.com/questions/2049582/how-to-determine-if-a-point-is-in-a-2d-triangle
+            var dX = p.X - p2.X;
+            var dY = p.Y - p2.Y;
+            var dX21 = p2.X - p1.X;
+            var dY12 = p1.Y - p2.Y;
+            var D = dY12 * (p0.X - p2.X) + dX21 * (p0.Y - p2.Y);
+            var s = dY12 * dX + dX21 * dY;
+            var t = (p2.Y - p0.Y) * dX + (p0.X - p2.X) * dY;
+            if (D < 0) return s <= 0 && t <= 0 && s + t >= D;
+            return s >= 0 && t >= 0 && s + t <= D;
+        }
+
         public void DrawSpriteBilinear(Texture2D Tex, Rectangle area, Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, int rt90 = 0, int flips = 0)
         {
             DrawSpriteBilinear(Tex, area, p0, p1, p2, p3, noGouraud, noGouraud, noGouraud, noGouraud, rt90, flips);
@@ -354,7 +431,44 @@ namespace Test3D4
 
             fx.Parameters["Tex"].SetValue(Tex);
             fx.CurrentTechnique.Passes[2].Apply();
-            gdev.DrawUserIndexedPrimitives(PrimitiveType.TriangleStrip, fullScreen, 0, 4, halfIdx, 0, 2);
+
+            var pts = new Vector3[4];
+            pts[0] = p0;
+            pts[1] = p1;
+            pts[2] = p2;
+            pts[3] = p3;
+
+
+            var center = AvgVertex3(p0,p1,p2,p3);
+            clocker.center = center;
+            System.Array.Sort(pts,clocker); //untwist
+
+
+            for (int i = 0; i < 4; i++)
+            { //check for concave and draw the encompassing triangle
+                var v0 = pts[i];
+                var v1 = pts[(1 + i) % 4];
+                var v2 = pts[(2 + i) % 4];
+                var v3 = pts[(3 + i) % 4];
+                if (ptInTriangle2D(v3, v0, v1, v2))
+                {
+                    //v3 is inside the triangle made by the others
+                    var verts = new VertexPosition[3];
+                    verts[0] = new VertexPosition(v0);
+                    verts[1] = new VertexPosition(v1);
+                    verts[2] = new VertexPosition(v2);
+                    gdev.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, verts, 0, 3, halfIdx, 0, 1);
+                    return; //my work here is done
+                }
+            }
+
+            var vert = new VertexPosition[4];
+            vert[0] = new VertexPosition(pts[0]);
+            vert[1] = new VertexPosition(pts[1]);
+            vert[2] = new VertexPosition(pts[3]);
+            vert[3] = new VertexPosition(pts[2]);
+
+            gdev.DrawUserIndexedPrimitives(PrimitiveType.TriangleStrip, vert, 0, 4, halfIdx, 0, 2);
         }
 
     }
