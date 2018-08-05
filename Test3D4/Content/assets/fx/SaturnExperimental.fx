@@ -130,8 +130,8 @@ Made a fix: https://gist.github.com/ivanpopelyshev/2a75479075286deb8ee5dc1fb2e07
 float cross2d(float2 a, float2 b) { return a.x*b.y - a.y*b.x; }
 float2 invBilinear(float3 pt) {
 	float2 p = pt;
-	p.x -= 0.4;
-	p.y -= 0.4;
+	//p.x -= 0.4;
+	//p.y -= 0.4;
 	float2 a = VertexA.xy;
 	float2 b = VertexB.xy;
 	float2 c = VertexC.xy;
@@ -180,39 +180,123 @@ float2 invBilinear(float3 pt) {
 	float2 res = -1;
 
 	if (b1 /*&& !b2*/) res = float2(u1, v1);
-	if ( !b1 &&  b2) res = float2(u2, v2);
+	if (!b1 &&  b2) res = float2(u2, v2);
+
+	return res;
+}
+float2 invBilinear(float3 pt, float2 a, float2 b, float2 c, float2 d) {
+	float2 p = pt;
+	//p.x -= 0.4;
+	//p.y -= 0.4;
+	//float2 a = VertexA.xy;
+	//float2 b = VertexB.xy;
+	//float2 c = VertexC.xy;
+	//float2 d = VertexD.xy;
+	float2 e = b - a;
+	float2 f = d - a;
+	float2 g = a - b + c - d;
+	float2 h = p.xy - a;
+
+	float k2 = cross2d(g, f);
+	float k1 = cross2d(e, f) + cross2d(h, g);
+	float k0 = cross2d(h, e);
+
+	float k2u = cross2d(e, g);
+	float k1u = cross2d(e, f) + cross2d(g, h);
+	float k0u = cross2d(h, f);
+
+	float v1, u1, v2, u2;
+
+	if (abs(k2) < 1e-5)
+	{
+		v1 = -k0 / k1;
+		u1 = (h.x - f.x*v1) / (e.x + g.x*v1);
+	}
+	else if (abs(k2u) < 1e-5)
+	{
+		u1 = k0u / k1u;
+		v1 = (h.y - e.y*u1) / (f.y + g.y*u1);
+	}
+	else
+	{
+		float w = k1 * k1 - 4.0*k0*k2;
+
+		if (w<0.0) return -1;
+
+		w = sqrt(w);
+
+		v1 = (-k1 - w) / (2.0*k2);
+		v2 = (-k1 + w) / (2.0*k2);
+		u1 = (-k1u - w) / (2.0*k2u);
+		u2 = (-k1u + w) / (2.0*k2u);
+	}
+	bool  b1 = v1>0.0 && v1<1.0 && u1>0.0 && u1<1.0;
+	bool  b2 = v2>0.0 && v2<1.0 && u2>0.0 && u2<1.0;
+
+	float2 res = -1;
+
+	if (b1 /*&& !b2*/) res = float2(u1, v1);
+	if (!b1 &&  b2) res = float2(u2, v2);
 
 	return res;
 }
 
 float4 bilinearGouraud(float2 uv) {
 	return float4(GouraudA.r * ((1 - uv.x) * (1 - uv.y))
-				+ GouraudB.r * (uv.x * (1 - uv.y))
-				+ GouraudC.r * (uv.x  * uv.y)
-				+ GouraudD.r * ((1 - uv.x) * uv.y)
-				, GouraudA.g * ((1 - uv.x) * (1 - uv.y))
-				+ GouraudB.g * (uv.x * (1 - uv.y))
-				+ GouraudC.g * (uv.x  * uv.y)
-				+ GouraudD.g * ((1 - uv.x) * uv.y)
-				, GouraudA.b * ((1 - uv.x) * (1 - uv.y))
-				+ GouraudB.b * (uv.x * (1 - uv.y))
-				+ GouraudC.b * (uv.x  * uv.y)
-				+ GouraudD.b * ((1 - uv.x) * uv.y)
-				, GouraudA.a * ((1 - uv.x) * (1 - uv.y))
-				+ GouraudB.a * (uv.x * (1 - uv.y))
-				+ GouraudC.a * (uv.x  * uv.y)
-				+ GouraudD.a * ((1 - uv.x) * uv.y));
+		+ GouraudB.r * (uv.x * (1 - uv.y))
+		+ GouraudC.r * (uv.x  * uv.y)
+		+ GouraudD.r * ((1 - uv.x) * uv.y)
+		, GouraudA.g * ((1 - uv.x) * (1 - uv.y))
+		+ GouraudB.g * (uv.x * (1 - uv.y))
+		+ GouraudC.g * (uv.x  * uv.y)
+		+ GouraudD.g * ((1 - uv.x) * uv.y)
+		, GouraudA.b * ((1 - uv.x) * (1 - uv.y))
+		+ GouraudB.b * (uv.x * (1 - uv.y))
+		+ GouraudC.b * (uv.x  * uv.y)
+		+ GouraudD.b * ((1 - uv.x) * uv.y)
+		, GouraudA.a * ((1 - uv.x) * (1 - uv.y))
+		+ GouraudB.a * (uv.x * (1 - uv.y))
+		+ GouraudC.a * (uv.x  * uv.y)
+		+ GouraudD.a * ((1 - uv.x) * uv.y));
+}
+float4 bilinearGouraud(float2 uv, float4 A, float4 B, float4 C, float4 D) {
+	return float4(A.r * ((1 - uv.x) * (1 - uv.y))
+		+ B.r * (uv.x * (1 - uv.y))
+		+ C.r * (uv.x  * uv.y)
+		+ D.r * ((1 - uv.x) * uv.y)
+		, A.g * ((1 - uv.x) * (1 - uv.y))
+		+ B.g * (uv.x * (1 - uv.y))
+		+ C.g * (uv.x  * uv.y)
+		+ D.g * ((1 - uv.x) * uv.y)
+		, A.b * ((1 - uv.x) * (1 - uv.y))
+		+ B.b * (uv.x * (1 - uv.y))
+		+ C.b * (uv.x  * uv.y)
+		+ D.b * ((1 - uv.x) * uv.y)
+		, A.a * ((1 - uv.x) * (1 - uv.y))
+		+ B.a * (uv.x * (1 - uv.y))
+		+ C.a * (uv.x  * uv.y)
+		+ D.a * ((1 - uv.x) * uv.y));
 }
 
 float2 bilinearUV(float2 uv) {
 	return float2(UVA.x * ((1 - uv.x) * (1 - uv.y))
-				+ UVB.x * (uv.x * (1 - uv.y))
-				+ UVC.x * (uv.x  * uv.y)
-				+ UVD.x * ((1 - uv.x) * uv.y)
-				, UVA.y * ((1 - uv.x) * (1 - uv.y))
-				+ UVB.y * (uv.x * (1 - uv.y))
-				+ UVC.y * (uv.x  * uv.y)
-				+ UVD.y * ((1 - uv.x) * uv.y));
+		+ UVB.x * (uv.x * (1 - uv.y))
+		+ UVC.x * (uv.x  * uv.y)
+		+ UVD.x * ((1 - uv.x) * uv.y)
+		, UVA.y * ((1 - uv.x) * (1 - uv.y))
+		+ UVB.y * (uv.x * (1 - uv.y))
+		+ UVC.y * (uv.x  * uv.y)
+		+ UVD.y * ((1 - uv.x) * uv.y));
+}
+float2 bilinearUV(float2 uv, float2 A, float2 B, float2 C, float2 D) {
+	return float2(A.x * ((1 - uv.x) * (1 - uv.y))
+		+ B.x * (uv.x * (1 - uv.y))
+		+ C.x * (uv.x  * uv.y)
+		+ D.x * ((1 - uv.x) * uv.y)
+		, A.y * ((1 - uv.x) * (1 - uv.y))
+		+ B.y * (uv.x * (1 - uv.y))
+		+ C.y * (uv.x  * uv.y)
+		+ D.y * ((1 - uv.x) * uv.y));
 }
 
 
@@ -291,10 +375,33 @@ VSOutputBatch VertexShaderBatch(VSInputBatch input)
 
 float4 PixelShaderBatch(VSOutputBatch input) : COLOR
 {
-	//clip(-1);
-	float2 uv = 0;
-	uv.y = input.TexCoord.y / BatchSize;
-	return saturate(tex2D(quadSampler, uv));
+	float2 uv = 1.0 / 16;
+	uv.y = input.TexCoord.y;
+	float4 pos0 = tex2D(quadSampler, uv);
+	uv.x += 1.0 / 8;
+	float4 pos1 = tex2D(quadSampler, uv);
+	float2 invbi = invBilinear(input.PositionPS, pos0.xy, pos0.zw, pos1.xy, pos1.zw);
+	if (invbi.x < -0.5 || invbi.y < -0.5) clip(-1);
+	//if (invbi.x < -0.5 || invbi.y < -0.5) return float4(1, 0, 1, 1);
+	uv.x += 1.0 / 8;
+	float4 uv0 = tex2D(quadSampler, uv);
+	uv.x += 1.0 / 8;
+	float4 uv1 = tex2D(quadSampler, uv);
+	float4 textureColor = tex2D(textureSampler, bilinearUV(invbi, uv0.xy, uv0.zw, uv1.xy, uv1.zw));
+	if (MagicColEnable == true && textureColor.r == MagicCol.r && textureColor.g == MagicCol.g && textureColor.b == MagicCol.b && textureColor.a == MagicCol.a) clip(-1);
+	uv.x += 1.0 / 8;
+	float4 col0 = tex2D(quadSampler, uv);
+	uv.x += 1.0 / 8;
+	float4 col1 = tex2D(quadSampler, uv);
+	uv.x += 1.0 / 8;
+	float4 col2 = tex2D(quadSampler, uv);
+	uv.x += 1.0 / 8;
+	float4 col3 = tex2D(quadSampler, uv);
+	float4 col = saturate(bilinearGouraud(invbi,col0,col1,col2,col3));
+	textureColor.rgb += col.rgb - 0.5;
+	textureColor.a *= col.a;
+	if (textureColor.a <= 0) clip(-1);
+	return saturate(textureColor);
 }
 
 technique Simple
