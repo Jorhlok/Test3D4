@@ -22,7 +22,7 @@ namespace Test3D4
         int t;
         int v;
 
-        public QuadBatch(GraphicsDevice gdev, Effect saturnEffect, short bSize = 8, int w = 320, int h = 240, Matrix? proj = null, int sdrScale = 1, SurfaceFormat format = SurfaceFormat.HalfVector4)
+        public QuadBatch(GraphicsDevice gdev, Effect saturnEffect, short bSize = 8000, int w = 320, int h = 240, Matrix? proj = null, int sdrScale = 1, SurfaceFormat format = SurfaceFormat.HalfVector4)
         {
             this.gdev = gdev;
             fx = saturnEffect;
@@ -176,6 +176,71 @@ namespace Test3D4
         {
             DrawSprite(Tex, area, p0, p1, p2, p3, noGouraud, noGouraud, noGouraud, noGouraud, rt90, flips);
         }
+
+        /* no depth 8000 buf 1M quad
+         + 3495.1999
+         + 3487.1994
+         + 3428.1961
+         + 3482.1992
+         + 3469.1984
+         + 3461.198
+         + 3441.1968
+         + 3487.1995
+         + 3441.1969
+         + 3490.1996
+         * avg 3468.29838
+         * qps 288325.827375902
+         * 60fps 4805.43045626503
+         * 30fps 9610.86091253006
+         * 
+         * depth 8000 buf 1M quad
+         + 1688.0965
+         + 1686.0964
+         + 1691.0967
+         + 1744.0998
+         + 1682.0962
+         + 1665.0952
+         + 1699.0972
+         + 1682.0963
+         + 1685.0963
+         + 1710.0978
+         * avg 1693.29684
+         * qps 590563.908452106
+         * 60fps 9842.7318075351
+         * 30fps 19685.4636150702
+         * 
+         * depth 2048 buf 1M quad
+         + 2060.1178
+         + 2058.1177
+         + 2043.1169
+         + 2053.1175
+         + 2031.1161
+         + 2032.1162
+         + 2042.1168
+         + 2043.1169
+         + 2071.1185
+         + 2021.1156
+         * avg 2045.517
+         * qps 488873.961937251
+         * 60fps 8147.89936562085
+         * 30fps 16295.7987312417
+         * 
+         * depth 4096 buf 4096 quad
+         + 9.0006
+         + 8.0004
+         + 9.0005
+         + 7.0004
+         + 8.0005
+         + 7.0004
+         + 13.0008
+         + 13.0007
+         + 8.0004
+         + 12.0007
+         * avg 9.40054
+         * qps 435719.650147757
+         * 60fps 7261.99416912929
+         * 30fps 14523.9883382586
+         */
 
         public void DrawSprite(Texture2D Tex, Rectangle area, Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, Color c0, Color c1, Color c2, Color c3, int rt90 = 0, int flips = 0)
         {

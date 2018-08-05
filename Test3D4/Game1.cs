@@ -208,32 +208,72 @@ namespace Test3D4
             //for (short i = 0; i < 3 * 4; i++) idx[i] = i;
             //qdraw.gdev.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, verts, 0, 3*4, idx, 0, 4);
 
-            qbatch.DrawSprite(Tex, new Rectangle(0, 0, 96, 96), new Vector3(96, 0, -1), new Vector3(0, 0, -1), new Vector3(96, 96, -1), new Vector3(0, 96, -1));
-            qbatch.DrawSprite(Tex, new Rectangle(0, 0, 96, 96), new Vector3(100, 100, -1), new Vector3(196, 100, -1), new Vector3(196, 196, -1), new Vector3(100, 196, -1), Color.Red, Color.Lime, Color.Blue, Color.White);
+            //qbatch.DrawSprite(Tex, new Rectangle(0, 0, 96, 96), new Vector3(96, 0, -1), new Vector3(0, 0, -1), new Vector3(96, 96, -1), new Vector3(0, 96, -1));
+            //qbatch.DrawSprite(Tex, new Rectangle(0, 0, 96, 96), new Vector3(100, 100, -1), new Vector3(196, 100, -1), new Vector3(196, 196, -1), new Vector3(100, 196, -1), Color.Red, Color.Lime, Color.Blue, Color.White);
 
+         //   System.Console.WriteLine(1000000/((3495.1999
+         //+ 3487.1994
+         //+ 3428.1961
+         //+ 3482.1992
+         //+ 3469.1984
+         //+ 3461.198
+         //+ 3441.1968
+         //+ 3487.1995
+         //+ 3441.1969
+         //+ 3490.1996) / 10)*1000/30);
+         //   System.Console.WriteLine(1000000 / ((1688.0965
+         //+ 1686.0964
+         //+ 1691.0967
+         //+ 1744.0998
+         //+ 1682.0962
+         //+ 1665.0952
+         //+ 1699.0972
+         //+ 1682.0963
+         //+ 1685.0963
+         //+ 1710.0978) / 10) * 1000 / 30);
+         //   System.Console.WriteLine(1000000 / ((2060.1178
+         //+ 2058.1177
+         //+ 2043.1169
+         //+ 2053.1175
+         //+ 2031.1161
+         //+ 2032.1162
+         //+ 2042.1168
+         //+ 2043.1169
+         //+ 2071.1185
+         //+ 2021.1156) / 10) * 1000 / 30);
+         //   System.Console.WriteLine(4096 / ((9.0006
+         //+ 8.0004
+         //+ 9.0005
+         //+ 7.0004
+         //+ 8.0005
+         //+ 7.0004
+         //+ 13.0008
+         //+ 13.0007
+         //+ 8.0004
+         //+ 12.0007) / 10) * 1000 / 30);
+         //   System.Console.WriteLine();
 
-
-            //var rand = new System.Random();
-            //for (int i = 0; i < rng.Length; i++) rng[i] = (float)rand.NextDouble();
-            //var start = System.DateTime.Now;
-            //var len = rng.Length;
-            //for (int i = 1; i <= 1000000; i++)
-            //{
-            //    qdraw.DrawSpriteBilinearToScreen(Tex, new Rectangle(0, 0, Tex.Width, Tex.Height), new Vector3(rng[(i * 3) % len] * 320, rng[(i * 5) % len] * 240, rng[(i * 7) % len] * -11 - 0.5f)
-            //                                                                        , new Vector3(rng[(i * 9) % len] * 320, rng[(i * 11) % len] * 240, rng[(i * 13) % len] * -11 - 0.5f)
-            //                                                                        , new Vector3(rng[(i * 15) % len] * 320, rng[(i * 17) % len] * 240, rng[(i * 19) % len] * -11 - 0.5f)
-            //                                                                        , new Vector3(rng[(i * 21) % len] * 320, rng[(i * 23) % len] * 240, rng[(i * 25) % len] * -11 - 0.5f)
-            //                                                                        , new Color(rng[(i * 27) % len], rng[(i * 29) % len], rng[(i * 31) % len], 1)
-            //                                                                        , new Color(rng[(i * 33) % len], rng[(i * 35) % len], rng[(i * 37) % len], 1)
-            //                                                                        , new Color(rng[(i * 39) % len], rng[(i * 41) % len], rng[(i * 43) % len], 1)
-            //                                                                        , new Color(rng[(i * 45) % len], rng[(i * 47) % len], rng[(i * 49) % len], 1));
-            //}
+            var rand = new System.Random();
+            for (int i = 0; i < rng.Length; i++) rng[i] = (float)rand.NextDouble();
+            var start = System.DateTime.Now;
+            var len = rng.Length;
+            for (int i = 1; i <= 1000000; i++)
+            {
+                qbatch.DrawSprite(Tex, new Rectangle(0, 0, Tex.Width, Tex.Height), new Vector3(rng[(i * 3) % len] * 320, rng[(i * 5) % len] * 240, rng[(i * 7) % len] * -11 - 0.5f)
+                                                                                    , new Vector3(rng[(i * 9) % len] * 320, rng[(i * 11) % len] * 240, rng[(i * 13) % len] * -11 - 0.5f)
+                                                                                    , new Vector3(rng[(i * 15) % len] * 320, rng[(i * 17) % len] * 240, rng[(i * 19) % len] * -11 - 0.5f)
+                                                                                    , new Vector3(rng[(i * 21) % len] * 320, rng[(i * 23) % len] * 240, rng[(i * 25) % len] * -11 - 0.5f)
+                                                                                    , new Color(rng[(i * 27) % len], rng[(i * 29) % len], rng[(i * 31) % len], 1)
+                                                                                    , new Color(rng[(i * 33) % len], rng[(i * 35) % len], rng[(i * 37) % len], 1)
+                                                                                    , new Color(rng[(i * 39) % len], rng[(i * 41) % len], rng[(i * 43) % len], 1)
+                                                                                    , new Color(rng[(i * 45) % len], rng[(i * 47) % len], rng[(i * 49) % len], 1));
+            }
 
             //qdraw.End();
             qbatch.End();
 
-            //var span = System.DateTime.Now - start;
-            //System.Console.WriteLine(span.TotalMilliseconds);
+            var span = System.DateTime.Now - start;
+            System.Console.WriteLine(span.TotalMilliseconds);
 
 
             qdraw.gdev.Clear(Color.CornflowerBlue);
