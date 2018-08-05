@@ -25,6 +25,12 @@ struct VSInputTxVc
 	float4 Color    : COLOR;
 };
 
+struct VSInputBatch
+{
+	float4 Position : POSITION;
+	float2 TexCoord : TEXCOORD;
+};
+
 struct VSOutput
 {
 	float4 PositionPS : SV_Position;
@@ -40,6 +46,12 @@ struct VSOutputTx
 {
 	float4 PositionPS : SV_Position;
 	float4 Diffuse    : COLOR0;
+	float2 TexCoord   : TEXCOORD0;
+};
+
+struct VSOutputBatch
+{
+	float4 PositionPS : SV_Position;
 	float2 TexCoord   : TEXCOORD0;
 };
 
@@ -76,6 +88,17 @@ float4 PrimitiveColor;
 
 sampler2D textureSampler = sampler_state {
 	Texture = (Tex);
+	MinFilter = Point;
+	MagFilter = Point;
+	AddressU = Clamp;
+	AddressV = Clamp;
+};
+
+
+float BatchSize;
+texture Quads;
+sampler2D quadSampler = sampler_state {
+	Texture = (Quads);
 	MinFilter = Point;
 	MagFilter = Point;
 	AddressU = Clamp;
@@ -256,6 +279,24 @@ float4 PixelShaderFunction(VSOutputVc input) : COLOR
 	return input.Diffuse;
 }
 
+
+VSOutputBatch VertexShaderBatch(VSInputBatch input)
+{
+	VSOutputBatch output;
+
+	output.PositionPS = mul(input.Position, Projection);
+	output.TexCoord = input.TexCoord;
+	return output;
+}
+
+float4 PixelShaderBatch(VSOutputBatch input) : COLOR
+{
+	//clip(-1);
+	float2 uv = 0;
+	uv.y = input.TexCoord.y / BatchSize;
+	return saturate(tex2D(quadSampler, uv));
+}
+
 technique Simple
 {
 	pass Pass1
@@ -274,5 +315,11 @@ technique Simple
 	{
 		VertexShader = compile VS_SHADERMODEL PosVertexShaderFunction();
 		PixelShader = compile PS_SHADERMODEL TexPixelShaderFunction2();
+	}
+
+	pass Pass4
+	{
+		VertexShader = compile VS_SHADERMODEL VertexShaderBatch();
+		PixelShader = compile PS_SHADERMODEL PixelShaderBatch();
 	}
 }
