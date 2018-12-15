@@ -210,54 +210,13 @@ namespace Test3D4
 
             //qbatch.DrawSprite(Tex, new Rectangle(0, 0, 96, 96), new Vector3(96, 0, -1), new Vector3(0, 0, -1), new Vector3(96, 96, -1), new Vector3(0, 96, -1));
             //qbatch.DrawSprite(Tex, new Rectangle(0, 0, 96, 96), new Vector3(100, 100, -1), new Vector3(196, 100, -1), new Vector3(196, 196, -1), new Vector3(100, 196, -1), Color.Red, Color.Lime, Color.Blue, Color.White);
-
-         //   System.Console.WriteLine(1000000/((3495.1999
-         //+ 3487.1994
-         //+ 3428.1961
-         //+ 3482.1992
-         //+ 3469.1984
-         //+ 3461.198
-         //+ 3441.1968
-         //+ 3487.1995
-         //+ 3441.1969
-         //+ 3490.1996) / 10)*1000/30);
-         //   System.Console.WriteLine(1000000 / ((1688.0965
-         //+ 1686.0964
-         //+ 1691.0967
-         //+ 1744.0998
-         //+ 1682.0962
-         //+ 1665.0952
-         //+ 1699.0972
-         //+ 1682.0963
-         //+ 1685.0963
-         //+ 1710.0978) / 10) * 1000 / 30);
-         //   System.Console.WriteLine(1000000 / ((2060.1178
-         //+ 2058.1177
-         //+ 2043.1169
-         //+ 2053.1175
-         //+ 2031.1161
-         //+ 2032.1162
-         //+ 2042.1168
-         //+ 2043.1169
-         //+ 2071.1185
-         //+ 2021.1156) / 10) * 1000 / 30);
-         //   System.Console.WriteLine(4096 / ((9.0006
-         //+ 8.0004
-         //+ 9.0005
-         //+ 7.0004
-         //+ 8.0005
-         //+ 7.0004
-         //+ 13.0008
-         //+ 13.0007
-         //+ 8.0004
-         //+ 12.0007) / 10) * 1000 / 30);
-         //   System.Console.WriteLine();
+            
 
             var rand = new System.Random();
             for (int i = 0; i < rng.Length; i++) rng[i] = (float)rand.NextDouble();
             var start = System.DateTime.Now;
             var len = rng.Length;
-            for (int i = 1; i <= 1000000; i++)
+            for (int i = 1; i <= 590000; i++)
             {
                 qbatch.DrawSprite(Tex, new Rectangle(0, 0, Tex.Width, Tex.Height), new Vector3(rng[(i * 3) % len] * 320, rng[(i * 5) % len] * 240, rng[(i * 7) % len] * -11 - 0.5f)
                                                                                     , new Vector3(rng[(i * 9) % len] * 320, rng[(i * 11) % len] * 240, rng[(i * 13) % len] * -11 - 0.5f)
@@ -288,3 +247,204 @@ namespace Test3D4
         }
     }
 }
+
+/*
+    compact
+    x0, y0, x1, y1
+    x2, y2, x3, y3
+    u0, v0, u1, v1
+    u2, v2, u3, v3
+    c0, c1, c2, c3
+    16-bit sprite/16 color sprite/quad/screen doors
+    5x vec4 + 1 float
+    21 float
+
+    unpacked
+    x0, y0
+    x1, y1
+    x2, y2
+    x3, y3
+    u0, v0
+    u1, v1
+    u2, v2
+    u3, v3
+    c0
+    c1
+    c2
+    c3
+    16-bit sprite/16 color sprite/quad
+    screen doors
+    8x vec2 + 4x vec4 + 2 float
+    34 float
+
+    =================================
+
+    sprite (full color)/(index)
+    x0, y0, z0
+    x1, y1, z1
+    x2, y2, z2
+    x3, y3, z3
+    u0, v0
+    u1, v1
+    u2, v2
+    u3, v3
+    r0, g0, b0, a0
+    r1, g1, b1, a1
+    r2, g2, b2, a2
+    r3, g3, b3, a3
+    screendoors/index
+
+    sprite 16 color
+    x0, y0, z0
+    x1, y1, z1
+    x2, y2, z2
+    x3, y3, z3
+    u0, v0
+    u1, v1
+    u2, v2
+    u3, v3
+    r0, g0, b0, a0
+    r1, g1, b1, a1
+    r2, g2, b2, a2
+    r3, g3, b3, a3
+    c0
+    c1
+    c2
+    c3
+    c4
+    c5
+    c6
+    c7
+    c8
+    c9
+    ca
+    cb
+    cc
+    cd
+    ce
+    cf
+    screendoors
+    
+    quad
+    x0, y0, z0
+    x1, y1, z1
+    x2, y2, z2
+    x3, y3, z3
+    r0, g0, b0, a0
+    r1, g1, b1, a1
+    r2, g2, b2, a2
+    r3, g3, b3, a3
+    screendoors
+    
+    tri textured
+    x0, y0, z0
+    x1, y1, z1
+    x2, y2, z2
+    u0, v0
+    u1, v1
+    u2, v2
+    r0, g0, b0, a0
+    r1, g1, b1, a1
+    r2, g2, b2, a2
+    screendoors/index
+
+    tri
+    x0, y0, z0
+    x1, y1, z1
+    x2, y2, z2
+    r0, g0, b0, a0
+    r1, g1, b1, a1
+    r2, g2, b2, a2
+    screendoors
+
+    modes:
+    flat/tex/clut   + 8*mode (0 flat, 1 tex, 2 tex clut)
+    tri/quad            + 4 for quad
+    screendoors         + 2
+    first/second tri    + 1
+
+    combined:
+    mode
+    x0, y0, z0
+    x1, y1, z1
+    x2, y2, z2
+    x3, y3, z3
+    u0, v0
+    u1, v1
+    u2, v2
+    u3, v3
+    r0, g0, b0, a0
+    r1, g1, b1, a1
+    r2, g2, b2, a2
+    r3, g3, b3, a3
+    c0 (r in flat) (offset in nonCLUT index)
+    c1 (g in flat) (half luminance for rgba textures?)
+    c2 (b in flat)
+    c3 (a in flat)
+    c4
+    c5
+    c6
+    c7
+    c8
+    c9
+    ca
+    cb
+    cc
+    cd
+    ce
+    cf
+
+    17 attributes if group clut
+    29 attributes
+    53 floats
+    
+    packed vec:
+    vec4    vertex,mode
+    vec3    xyz0
+    vec3    xyz1
+    vec3    xyz2
+    vec3    xyz3
+    vec4    uv0
+    vec4    uv2
+    vec4    gouraud0
+    vec4    gouraud1
+    vec4    gouraud2
+    vec4    gouraud3
+    vec4    clut0
+    vec4    clut4
+    vec4    clut8
+    vec4    clutc
+
+    15 attr
+
+    gl 2.1  16 min
+    gles 2  8 min
+    gles 3  16 min
+
+    packed:
+    vec3    vertex
+    float   mode
+    mat3x4  xyz
+    mat2x4  uv
+    mat4x4  gouraud
+    mat4x4  clut
+
+    5 attr + vertex
+
+    globals:
+    world matrix
+    viewport matrix
+    texture atlas
+    color index
+    screendoors size
+    screendoors mode (on-off, off-on, 3/4-1/4, 1/4-3/4, 1/2)
+
+    combined color coding:
+    a 0.0-1.0 RGBA
+    a 2.0-3.0 index? or just > 1.0
+
+    bother with half luminance mode?
+    cmdcolr! flat color of part before gouraud
+    texture smoothing?
+    aa?
+*/
