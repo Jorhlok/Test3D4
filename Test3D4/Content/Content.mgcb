@@ -85,3 +85,9 @@
 /processorParam:TextureFormat=Color
 /build:assets/img/02.png
 
+#begin assets/fx/Saturnalia.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:assets/fx/Saturnalia.fx
+

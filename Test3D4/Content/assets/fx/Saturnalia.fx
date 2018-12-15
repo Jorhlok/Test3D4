@@ -9,7 +9,7 @@
 
 /*
 modes:
-flat/tex/clut   + 8*mode (0 flat, 1 tex, 2 tex clut)
+flat/tex/clut		+ 8*mode (0 flat, 1 tex, 2 tex clut)
 tri/quad            + 4 for quad
 screendoors         + 2
 first/second tri    + 1
@@ -71,6 +71,48 @@ vec4    clutc
 gl 2.1  16 min
 gles 2  8 min
 gles 3  16 min
+
+packed vec 2:
+vec4    vertex
+vec3    xyz0
+vec3    xyz1
+vec3    xyz2
+vec3    xyz3
+vec4    uv0 (flat color for untextured)
+vec4    uv2
+vec4    gouraud0
+vec4    gouraud1
+vec4    gouraud2
+vec4    gouraud3
+vec4    modes (mode, half lumi/shading?, color bank, CLUT index)
+
+12 attr
+
+to pixel shader:
+vec4    vertex
+vec3    xy0, xy1
+vec3    xy2, xy3
+vec4    uv0 (flat color for untextured)
+vec4    uv2
+vec4    gouraud0
+vec4    gouraud1
+vec4    gouraud2
+vec4    gouraud3
+vec4    modes (mode, half lumi/shading?, color bank, CLUT index)
+
+10 registers (out of 11?)
+
+
+even smaller:
+vec3    vertex
+vec3    xy0, xy1
+vec3    xy2, xy3
+vec4    uv0 (flat color for untextured)
+vec4    uv2
+vec4    gouraud (each packed into 15 bits)
+vec4    modes (mode, half lumi/shading?, color bank, CLUT index)
+
+7 registers (compatible with gles 2 and webgl 1?)
 */
 
 struct VSInput
@@ -94,8 +136,8 @@ struct VSInput
 
 struct VSOutput
 {
-	float3 Position : SV_Position;
-	float3 XYZ0 : TEXCOORD0;
+	float4 Position : SV_Position;
+	float3 XYZ0 : TEXCOORD0; //combine to 2D
 	float3 XYZ1 : TEXCOORD1;
 	float3 XYZ2 : TEXCOORD2;
 	float3 XYZ3 : TEXCOORD3;
@@ -105,17 +147,17 @@ struct VSOutput
 	float4 GOURAUD1 : TEXCOORD7;
 	float4 GOURAUD2 : TEXCOORD8;
 	float4 GOURAUD3 : TEXCOORD9;
-	float4 CLUT0 : TEXCOORD10;
-	float4 CLUT1 : TEXCOORD11;
-	float4 CLUT2 : TEXCOORD12;
-	float4 CLUT3 : TEXCOORD13;
-	float  Mode : TEXCOORD14;
+	//float4 CLUT0 : TEXCOORD10; //11 o# registers available? (move CLUTs to global buffer then point)
+	//float4 CLUT1 : TEXCOORD11;
+	//float4 CLUT2 : TEXCOORD12;
+	//float4 CLUT3 : TEXCOORD13;
+	// float  Mode : TEXCOORD14;
 };
 
 VSOutput VertexShaderFunction(VSInput input)
 {
 	VSOutput output;
-	output.Position = input.Position.xyz;
+	output.Position = input.Position;
 	output.XYZ0 = input.XYZ0;
 	output.XYZ1 = input.XYZ1;
 	output.XYZ2 = input.XYZ2;
@@ -126,11 +168,10 @@ VSOutput VertexShaderFunction(VSInput input)
 	output.GOURAUD1 = input.GOURAUD1;
 	output.GOURAUD2 = input.GOURAUD2;
 	output.GOURAUD3 = input.GOURAUD3;
-	output.CLUT0 = input.CLUT0;
-	output.CLUT1 = input.CLUT1;
-	output.CLUT2 = input.CLUT2;
-	output.CLUT3 = input.CLUT3;
-	output.Mode = input.Position.w
+	//output.CLUT0 = input.CLUT0;
+	//output.CLUT1 = input.CLUT1;
+	//output.CLUT2 = input.CLUT2;
+	//output.CLUT3 = input.CLUT3;
 
 	return output;
 }
