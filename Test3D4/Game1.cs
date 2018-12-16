@@ -19,8 +19,9 @@ namespace Test3D4
         public Texture2D Tex01;
         public Texture2D Tex02;
         public Texture2D TexTest;
-        QuadDraw qdraw;
-        QuadBatch qbatch;
+        //QuadDraw qdraw;
+        //QuadBatch qbatch;
+        SaturnaliaBatch sbatch;
         float statetime = 0;
         float[] rng = new float[1024*256]; //1MB
 
@@ -59,7 +60,7 @@ namespace Test3D4
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             // TODO: use this.Content to load your game content here
-            SaturnEffect = Content.Load<Effect>("assets/fx/SaturnExperimental");
+            SaturnEffect = Content.Load<Effect>("assets/fx/Saturnalia");
 
             Tex = Content.Load<Texture2D>("assets/img/WALL");
             TexRing = Content.Load<Texture2D>("assets/img/ring");
@@ -67,9 +68,9 @@ namespace Test3D4
             Tex01 = Content.Load<Texture2D>("assets/img/01");
             Tex02 = Content.Load<Texture2D>("assets/img/02");
 
-            qdraw = new QuadDraw(GraphicsDevice, SaturnEffect);//,640,480);
-            qdraw.MagicCol(Color.Lime);
-            SaturnEffect.Parameters["Tex"].SetValue(Tex);
+            //qdraw = new QuadDraw(GraphicsDevice, SaturnEffect);//,640,480);
+            //qdraw.MagicCol(Color.Lime);
+            //SaturnEffect.Parameters["Tex"].SetValue(Tex);
 
             //TexTest = new Texture2D(GraphicsDevice, 2, 4, false, SurfaceFormat.Vector4);
             //var arr = new Vector4[8];
@@ -86,7 +87,8 @@ namespace Test3D4
             //SaturnEffect.Parameters["Quads"].SetValue(TexTest);
             //SaturnEffect.Parameters["BatchSize"].SetValue(4f);
 
-            qbatch = new QuadBatch(GraphicsDevice, SaturnEffect);
+            //qbatch = new QuadBatch(GraphicsDevice, SaturnEffect);
+            sbatch = new SaturnaliaBatch(GraphicsDevice, SaturnEffect);
         }
 
         /// <summary>
@@ -96,7 +98,8 @@ namespace Test3D4
         protected override void UnloadContent()
         {
             // TODO: Unload any non ContentManager content here
-            qbatch.Dispose();
+            //qbatch.Dispose();
+            sbatch.Dispose();
             graphics.Dispose();
         }
 
@@ -122,37 +125,44 @@ namespace Test3D4
         protected override void Draw(GameTime gameTime)
         {
             // TODO: Add your drawing code here
-            
-            qbatch.DepthEnable();
-            qbatch.Begin();
 
-            var rand = new System.Random();
-            for (int i = 0; i < rng.Length; i++) rng[i] = (float)rand.NextDouble();
-            var start = System.DateTime.Now;
-            var len = rng.Length;
-            for (int i = 1; i <= 590000; i++)
-            {
-                qbatch.DrawSprite(Tex, new Rectangle(0, 0, Tex.Width, Tex.Height), new Vector3(rng[(i * 3) % len] * 320, rng[(i * 5) % len] * 240, rng[(i * 7) % len] * -11 - 0.5f)
-                                                                                    , new Vector3(rng[(i * 9) % len] * 320, rng[(i * 11) % len] * 240, rng[(i * 13) % len] * -11 - 0.5f)
-                                                                                    , new Vector3(rng[(i * 15) % len] * 320, rng[(i * 17) % len] * 240, rng[(i * 19) % len] * -11 - 0.5f)
-                                                                                    , new Vector3(rng[(i * 21) % len] * 320, rng[(i * 23) % len] * 240, rng[(i * 25) % len] * -11 - 0.5f)
-                                                                                    , new Color(rng[(i * 27) % len], rng[(i * 29) % len], rng[(i * 31) % len], 1)
-                                                                                    , new Color(rng[(i * 33) % len], rng[(i * 35) % len], rng[(i * 37) % len], 1)
-                                                                                    , new Color(rng[(i * 39) % len], rng[(i * 41) % len], rng[(i * 43) % len], 1)
-                                                                                    , new Color(rng[(i * 45) % len], rng[(i * 47) % len], rng[(i * 49) % len], 1));
-            }
-            
-            qbatch.End();
+            //qbatch.DepthEnable();
+            //qbatch.Begin();
+            sbatch.DepthEnable();
+            sbatch.Begin();
 
-            var span = System.DateTime.Now - start;
-            System.Console.WriteLine(span.TotalMilliseconds);
+            //var rand = new System.Random();
+            //for (int i = 0; i < rng.Length; i++) rng[i] = (float)rand.NextDouble();
+            //var start = System.DateTime.Now;
+            //var len = rng.Length;
+            //for (int i = 1; i <= 590000; i++)
+            //{
+            //    qbatch.DrawSprite(Tex, new Rectangle(0, 0, Tex.Width, Tex.Height), new Vector3(rng[(i * 3) % len] * 320, rng[(i * 5) % len] * 240, rng[(i * 7) % len] * -11 - 0.5f)
+            //                                                                        , new Vector3(rng[(i * 9) % len] * 320, rng[(i * 11) % len] * 240, rng[(i * 13) % len] * -11 - 0.5f)
+            //                                                                        , new Vector3(rng[(i * 15) % len] * 320, rng[(i * 17) % len] * 240, rng[(i * 19) % len] * -11 - 0.5f)
+            //                                                                        , new Vector3(rng[(i * 21) % len] * 320, rng[(i * 23) % len] * 240, rng[(i * 25) % len] * -11 - 0.5f)
+            //                                                                        , new Color(rng[(i * 27) % len], rng[(i * 29) % len], rng[(i * 31) % len], 1)
+            //                                                                        , new Color(rng[(i * 33) % len], rng[(i * 35) % len], rng[(i * 37) % len], 1)
+            //                                                                        , new Color(rng[(i * 39) % len], rng[(i * 41) % len], rng[(i * 43) % len], 1)
+            //                                                                        , new Color(rng[(i * 45) % len], rng[(i * 47) % len], rng[(i * 49) % len], 1));
+            //}
+
+            sbatch.DrawTriFlat(new Vector3(0, 0, -11), new Vector3(32, 0, -11), new Vector3(16, 32, -11), Color.White);
+
+            //qbatch.End();
+            sbatch.End();
+
+            //var span = System.DateTime.Now - start;
+            //System.Console.WriteLine(span.TotalMilliseconds);
 
 
-            qdraw.gdev.Clear(Color.CornflowerBlue);
+            //qdraw.gdev.Clear(Color.CornflowerBlue);
+            sbatch.gdev.Clear(Color.CornflowerBlue);
             basicEffect.CurrentTechnique.Passes[0].Apply();
             spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.NonPremultiplied, SamplerState.PointClamp);
-            spriteBatch.Draw(qbatch.quadBufTex, new Rectangle(0, 0, qbatch.quadBufTex.Width * 2, qbatch.quadBufTex.Height * 2), Color.White);
-            spriteBatch.Draw(qbatch.buf, new Rectangle((800 - 640) / 2, 0, 640, 480), Color.White);
+            //spriteBatch.Draw(qbatch.quadBufTex, new Rectangle(0, 0, qbatch.quadBufTex.Width * 2, qbatch.quadBufTex.Height * 2), Color.White);
+            //spriteBatch.Draw(qbatch.buf, new Rectangle((800 - 640) / 2, 0, 640, 480), Color.White);
+            spriteBatch.Draw(sbatch.buf, new Rectangle((800 - 640) / 2, 0, 640, 480), Color.White);
             spriteBatch.End();
 
 

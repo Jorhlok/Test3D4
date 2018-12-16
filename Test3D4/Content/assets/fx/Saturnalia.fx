@@ -194,6 +194,7 @@ float2 bilinearUV(float2 uv, float2 A, float2 B, float2 C, float2 D) {
 VSOutput VertexShaderFunction(VSInput input)
 {
 	VSOutput output;
+
 	output.Position = mul(input.Position, Projection);
 	output.XY01 = input.XY01;
 	output.XY23 = input.XY23;
@@ -207,7 +208,7 @@ VSOutput VertexShaderFunction(VSInput input)
 
 float4 PixelShaderFunction(VSOutput input) : COLOR
 {
-	return input.Gouraud;
+	return 1; // input.UV01;
 }
 
 technique Saturnalia

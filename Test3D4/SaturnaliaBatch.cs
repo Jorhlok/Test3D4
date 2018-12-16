@@ -28,13 +28,13 @@ namespace Test3D4
 
         7 attr (compatible with gles 2 and webgl 1?)
         */
-        private Vector3 position;
-        private Vector4 xy01;
-        private Vector4 xy23;
-        private Vector4 uv01; //flat color for untextured
-        private Vector4 uv23;
-        private Vector4 gouraud;
-        private Vector4 modes; //mode, color bank, clut, color calc
+        public Vector3 position;
+        public Vector4 xy01;
+        public Vector4 xy23;
+        public Vector4 uv01; //flat color for untextured
+        public Vector4 uv23;
+        public Vector4 gouraud;
+        public Vector4 modes; //mode, color bank, clut, color calc
 
         public SaturnaliaVertex(Vector3 position, Vector4 xy01, Vector4 xy23, Vector4 uv01, Vector4 uv23, Vector4 gouraud, Vector4 modes)
         {
@@ -117,7 +117,8 @@ namespace Test3D4
         int t;
         int v;
 
-        public SaturnaliaBatch(GraphicsDevice gdev, Effect saturnEffect, short bSize = 4096, int w = 320, int h = 240, Matrix? proj = null, Vector3? screendoors = null, SurfaceFormat format = SurfaceFormat.HalfVector4)
+        public SaturnaliaBatch(GraphicsDevice gdev, Effect saturnEffect, short bSize = 4096, int w = 320, int h = 240, 
+            Matrix? proj = null, Vector3? screendoors = null, SurfaceFormat format = SurfaceFormat.HalfVector4)
         {
             this.gdev = gdev;
             fx = saturnEffect;
@@ -126,7 +127,7 @@ namespace Test3D4
             Projection(proj);
             CullMode();
             DepthEnable();
-            SetScreendoors(screendoors);
+            //SetScreendoors(screendoors);
             ChangeBatchSize(bSize);
         }
 
@@ -143,26 +144,16 @@ namespace Test3D4
             BatchSize = bSize;
             verts = null;
             indecies = null;
-            //quadBuf = null;
             t = v = 0;
-            //if (quadBufTex != null) quadBufTex.Dispose();
-            //quadBufTex = new Texture2D(gdev, 8, BatchSize, false, SurfaceFormat.Vector4);
             verts = new SaturnaliaVertex[BatchSize * 4]; //3 or 4 per quad
             indecies = new short[BatchSize * 6]; //3 or 6 per quad
-            //quadBuf = new Vector4[BatchSize * 8]; //8 per quad
-            for (int i = 0; i < BatchSize; i++)
-            {
-                for (int j = 0; j < 4; j++) verts[i * 4 + j] = new SaturnaliaVertex();
-                //for (int j = 0; j < 8; j++) quadBuf[i * 8 + j] = new Vector4();
-            }
+            for (int i = 0; i < BatchSize*4; i++) verts[i] = new SaturnaliaVertex();
         }
 
         public void Dispose()
         {
-            //if (quadBufTex != null) quadBufTex.Dispose();
-            //quadBufTex = null;
-            WipeColorTable();
-            WipeCLUT();
+            //WipeColorTable();
+            //WipeCLUT();
             verts = null;
             indecies = null;
             BatchSize = 0;
@@ -277,9 +268,7 @@ namespace Test3D4
             //    System.Console.WriteLine(verts[i]);
             //}
             //System.Console.WriteLine();
-            //quadBufTex.SetData<Vector4>(quadBuf);//,0,q);
-            //fx.Parameters["Quads"].SetValue(quadBufTex);
-            //fx.CurrentTechnique.Passes[3].Apply();
+            fx.CurrentTechnique.Passes[0].Apply();
             gdev.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, verts, 0, v, indecies, 0, t);
             Clear();
         }
@@ -308,6 +297,32 @@ namespace Test3D4
             var t = (p2.Y - p0.Y) * dX + (p0.X - p2.X) * dY;
             if (D < 0) return s <= 0 && t <= 0 && s + t >= D;
             return s >= 0 && t >= 0 && s + t <= D;
+        }
+
+        public void DrawTriFlat(Vector3 p0, Vector3 p1, Vector3 p2, Color col)
+        {
+            //something about batch size
+
+            var vert = verts[v];
+            //vert.modes.X = 0;
+            //vert.modes.Y = 0;
+            //vert.modes.Z = 0;
+            //vert.modes.W = 0;
+            vert.position = p0;
+            vert.uv01 = col.ToVector4();
+            //vert.gouraud = noGouraudCol.ToVector4();
+            indecies[t * 3] = (short)v++;
+            vert = verts[v];
+            //vert.modes.X = 0;
+            vert.position = p1;
+            vert.uv01 = col.ToVector4();
+            indecies[t * 3 + 1] = (short)v++;
+            vert = verts[v];
+            //vert.modes.X = 0;
+            vert.position = p2;
+            vert.uv01 = col.ToVector4();
+            indecies[t * 3 + 2] = (short)v++;
+            t++;
         }
         
     }
