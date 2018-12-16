@@ -39,7 +39,7 @@ struct VSInput
 	float4 UV01 : TEXCOORD2; //flat color for untextured
 	float4 UV23 : TEXCOORD3;
 	float4 Gouraud : TEXCOORD4;
-	float4 Modes : TEXCOORD5; //mode, clut, color bank, color calc
+	float4 Modes : TEXCOORD5; //mode, color bank, clut, color calc
 };
 
 struct VSOutput
